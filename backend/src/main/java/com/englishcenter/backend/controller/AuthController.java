@@ -2,6 +2,8 @@ package com.englishcenter.backend.controller;
 
 import com.englishcenter.backend.dto.AuthRequest;
 import com.englishcenter.backend.dto.AuthResponse;
+import com.englishcenter.backend.dto.CreateTeacherRequest;
+import com.englishcenter.backend.dto.ProfileRequest;
 import com.englishcenter.backend.entity.User;
 import com.englishcenter.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -64,5 +66,49 @@ public class AuthController {
     public ResponseEntity<List<User>> getStudents() {
         List<User> students = userService.getUsersByRole("STUDENT");
         return ResponseEntity.ok(students);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // POST /api/auth/create-teacher
+    // Chỉ Admin mới có quyền gọi để tạo tài khoản Teacher
+    // ─────────────────────────────────────────────────────────────
+    @PostMapping("/create-teacher")
+    public ResponseEntity<User> createTeacher(@Valid @RequestBody CreateTeacherRequest request) {
+        User teacher = userService.createTeacher(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(teacher);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // GET /api/auth/profile/{userId}
+    // Lấy thông tin hồ sơ người dùng
+    // ─────────────────────────────────────────────────────────────
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<AuthResponse> getUserProfile(@PathVariable Integer userId) {
+        AuthResponse profile = userService.getUserProfile(userId);
+        return ResponseEntity.ok(profile);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // PUT /api/auth/profile/{userId}
+    // Cập nhật hồ sơ cá nhân của người dùng
+    // ─────────────────────────────────────────────────────────────
+    @PutMapping("/profile/{userId}")
+    public ResponseEntity<AuthResponse> updateProfile(
+            @PathVariable Integer userId,
+            @Valid @RequestBody ProfileRequest request) {
+        AuthResponse updated = userService.updateProfile(userId, request);
+        return ResponseEntity.ok(updated);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // DELETE /api/auth/profile/{userId}
+    // Người dùng tự xóa mềm tài khoản của mình
+    // ─────────────────────────────────────────────────────────────
+    @DeleteMapping("/profile/{userId}")
+    public ResponseEntity<Void> deleteAccount(
+            @PathVariable Integer userId,
+            @RequestParam String password) {
+        userService.deleteAccount(userId, password);
+        return ResponseEntity.noContent().build();
     }
 }

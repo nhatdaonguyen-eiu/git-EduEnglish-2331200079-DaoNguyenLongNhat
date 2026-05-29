@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,15 +29,19 @@ import java.util.UUID;
 public class FileUploadController {
 
     private static final String UPLOAD_DIR = "uploads";
-    // Giới hạn các định dạng ảnh được phép upload
-    private static final String[] ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"};
+    // Giới hạn các định dạng được phép upload (ảnh, tài liệu, âm thanh)
+    private static final String[] ALLOWED_EXTENSIONS = {
+        ".jpg", ".jpeg", ".png", ".gif", ".webp", 
+        ".pdf", ".doc", ".docx", 
+        ".mp3", ".wav", ".m4a"
+    };
 
     @PostMapping
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
         // 1. Kiểm tra file rỗng
         if (file.isEmpty()) {
             Map<String, String> error = new HashMap<>();
-            error.put("error", "Vui lòng chọn một tệp hình ảnh để tải lên");
+            error.put("error", "Vui lòng chọn một tệp để tải lên");
             return ResponseEntity.badRequest().body(error);
         }
 
@@ -61,7 +64,7 @@ public class FileUploadController {
 
         if (!isAllowed) {
             Map<String, String> error = new HashMap<>();
-            error.put("error", "Chỉ chấp nhận các định dạng ảnh: .jpg, .jpeg, .png, .gif, .webp");
+            error.put("error", "Định dạng tệp không hỗ trợ. Chỉ hỗ trợ tệp Ảnh (.jpg, .png...), Tài liệu (.pdf, .doc, .docx) và Âm thanh (.mp3, .wav, .m4a)");
             return ResponseEntity.badRequest().body(error);
         }
 

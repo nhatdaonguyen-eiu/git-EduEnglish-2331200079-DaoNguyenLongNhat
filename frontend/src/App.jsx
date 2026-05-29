@@ -9,6 +9,8 @@ import AuthPortal from './components/AuthPortal';
 import TeacherPortal from './components/TeacherPortal';
 import ClassroomManager from './components/ClassroomManager';
 import StudentDashboard from './components/StudentDashboard';
+import ProfilePage from './components/ProfilePage';
+import AdminAccountsManager from './components/AdminAccountsManager';
 
 function App() {
   // Quản lý trạng thái Đăng nhập hệ thống (localStorage)
@@ -27,6 +29,9 @@ function App() {
 
   // Tab con trong trang Admin: 'courses' (Khóa học), 'registrations' (Đăng ký học), 'classrooms' (Quản lý lớp đào tạo)
   const [adminTab, setAdminTab] = useState('courses');
+
+  // Trạng thái hiển thị Trang Hồ Sơ cá nhân
+  const [showProfile, setShowProfile] = useState(false);
 
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -153,6 +158,7 @@ function App() {
     localStorage.removeItem('user');
     setCurrentUser(null);
     setPortalMode('student'); // Quay về trang học viên công khai
+    setShowProfile(false); // Đóng trang cá nhân nếu đang mở
     alert("👋 Đã đăng xuất tài khoản thành công!");
   };
 
@@ -171,7 +177,7 @@ function App() {
       {/* 1. THANH STICKY HEADER ĐIỀU HƯỚNG SPA & AUTHENTICATION */}
       <nav className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-200/60 shadow-sm px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* LOGO TRUNG TÂM */}
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => setPortalMode('student')}>
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => { setPortalMode('student'); setShowProfile(false); }}>
           <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center text-white font-extrabold text-lg shadow-md shadow-orange-500/10">
             E
           </div>
@@ -184,9 +190,9 @@ function App() {
         {/* CÁC NÚT ĐIỀU HƯỚNG SPA PHÂN HỆ CHÍNH */}
         <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200/20 items-center gap-1">
           <button 
-            onClick={() => setPortalMode('student')}
+            onClick={() => { setPortalMode('student'); setShowProfile(false); }}
             className={`px-5 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
-              portalMode === 'student'
+              portalMode === 'student' && !showProfile
                 ? 'bg-white text-orange-600 shadow-md shadow-slate-200/50'
                 : 'text-slate-500 hover:text-slate-800'
             }`}
@@ -197,9 +203,9 @@ function App() {
           {/* Nút Dashboard chỉ hiển thị khi đã đăng nhập */}
           {currentUser && (
             <button 
-              onClick={() => setPortalMode('dashboard')}
+              onClick={() => { setPortalMode('dashboard'); setShowProfile(false); }}
               className={`px-5 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
-                portalMode === 'dashboard'
+                portalMode === 'dashboard' && !showProfile
                   ? 'bg-white text-orange-600 shadow-md shadow-slate-200/50'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
@@ -214,17 +220,35 @@ function App() {
           {currentUser ? (
             // GIAO DIỆN KHI ĐÃ ĐĂNG NHẬP (HIỂN THỊ PILL PROFILE & ĐĂNG XUẤT)
             <div className="flex items-center gap-3 bg-slate-100/60 p-1.5 pr-3 rounded-2xl border border-slate-200/40 shadow-inner">
-              <span className="w-8 h-8 rounded-xl bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow">
-                {currentUser.fullName.charAt(0)}
-              </span>
+              {currentUser.avatarUrl ? (
+                <img 
+                  src={currentUser.avatarUrl} 
+                  alt="Avatar" 
+                  className="w-8 h-8 rounded-xl object-cover shadow"
+                />
+              ) : (
+                <span className="w-8 h-8 rounded-xl bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow">
+                  {currentUser.fullName.charAt(0)}
+                </span>
+              )}
               <div className="hidden md:block text-left">
                 <p className="text-xs font-black text-slate-800 leading-tight">{currentUser.fullName}</p>
                 <span className="text-[9px] font-bold text-orange-500 uppercase tracking-widest leading-none">{currentUser.role}</span>
               </div>
               
               <button 
+                onClick={() => setShowProfile(true)}
+                className="ml-2 text-xs font-bold text-orange-600 hover:text-orange-800 bg-none border-none cursor-pointer flex items-center gap-0.5"
+                title="Xem hồ sơ cá nhân"
+              >
+                👤 Hồ Sơ
+              </button>
+              
+              <span className="text-slate-350 text-xs">|</span>
+              
+              <button 
                 onClick={handleLogout}
-                className="ml-2 text-xs font-bold text-red-500 hover:text-red-700 bg-none border-none cursor-pointer"
+                className="text-xs font-bold text-red-500 hover:text-red-700 bg-none border-none cursor-pointer"
                 title="Đăng xuất tài khoản"
               >
                 🚪 Đăng xuất
@@ -243,7 +267,24 @@ function App() {
       </nav>
 
       {/* 2. HIỂN THỊ CHI TIẾT CÁC GIAO DIỆN THEO PHÂN HỆ */}
-      {portalMode === 'student' ? (
+      {showProfile ? (
+        <ProfilePage
+          user={currentUser}
+          onProfileUpdate={(updatedUser) => {
+            const newUser = { ...currentUser, ...updatedUser };
+            setCurrentUser(newUser);
+            localStorage.setItem('user', JSON.stringify(newUser));
+          }}
+          onClose={() => setShowProfile(false)}
+          onAccountDeleted={() => {
+            localStorage.removeItem('user');
+            setCurrentUser(null);
+            setShowProfile(false);
+            setPortalMode('student');
+            alert('❌ Tài khoản của bạn đã được xóa.');
+          }}
+        />
+      ) : portalMode === 'student' ? (
         // GIAO DIỆN TRANG CHỦ PUBLIC LANDING PAGE CHO HỌC VIÊN
         <StudentPortal />
       ) : (
@@ -272,8 +313,8 @@ function App() {
                   Control Panel & Lead Management
                 </p>
                 
-                {/* THANH SUB-TAB BÊN TRONG TRANG ADMIN (GỒM 3 TABS) */}
-                <div className="flex justify-center gap-4 mt-6 border-b border-slate-200/60 max-w-lg mx-auto pb-3 font-semibold">
+                {/* THANH SUB-TAB BÊN TRONG TRANG ADMIN (GỒM 4 TABS) */}
+                <div className="flex justify-center gap-4 mt-6 border-b border-slate-200/60 max-w-2xl mx-auto pb-3 font-semibold flex-wrap">
                   <button 
                     onClick={() => setAdminTab('courses')}
                     className={`pb-1 px-4 text-sm font-extrabold border-b-2 transition-all cursor-pointer ${
@@ -305,6 +346,17 @@ function App() {
                     }`}
                   >
                     🏫 Quản Lý Lớp Học
+                  </button>
+
+                  <button 
+                    onClick={() => setAdminTab('accounts')}
+                    className={`pb-1 px-4 text-sm font-extrabold border-b-2 transition-all cursor-pointer ${
+                      adminTab === 'accounts'
+                        ? 'border-orange-500 text-orange-600'
+                        : 'border-transparent text-slate-400 hover:text-slate-600'
+                    }`}
+                  >
+                    👨‍🏫 Quản Lý Giáo Viên
                   </button>
                 </div>
               </header>
@@ -420,6 +472,11 @@ function App() {
                 {adminTab === 'classrooms' && (
                   // TAB 3: QUẢN LÝ LỚP HỌC & ĐÀO TẠO ĐỘNG (LMS)
                   <ClassroomManager />
+                )}
+
+                {adminTab === 'accounts' && (
+                  // TAB 4: QUẢN LÝ GIÁO VIÊN
+                  <AdminAccountsManager />
                 )}
               </div>
             </div>

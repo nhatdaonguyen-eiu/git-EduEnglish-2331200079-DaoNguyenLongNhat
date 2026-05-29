@@ -2,6 +2,8 @@ package com.englishcenter.backend.service.impl;
 
 import com.englishcenter.backend.dto.AuthRequest;
 import com.englishcenter.backend.dto.AuthResponse;
+import com.englishcenter.backend.dto.CreateTeacherRequest;
+import com.englishcenter.backend.dto.ProfileRequest;
 import com.englishcenter.backend.entity.User;
 import com.englishcenter.backend.repository.UserRepository;
 import com.englishcenter.backend.service.UserService;
@@ -91,6 +93,8 @@ public class UserServiceImpl implements UserService {
         response.setFullName(user.getFullName());
         response.setRole(user.getRole());
         response.setEmail(user.getEmail()); // Gán Email người dùng
+        response.setPhone(user.getPhone());
+        response.setAvatarUrl(user.getAvatarUrl());
 
         return response;
     }
@@ -119,5 +123,115 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll().stream()
                 .filter(u -> !u.getIsDeleted() && u.getRole().equalsIgnoreCase(role))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public User createTeacher(CreateTeacherRequest request) {
+        // 1. Kiểm tra trùng username
+        if (userRepository.existsByUsernameAndIsDeletedFalse(request.getUsername())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Tên đăng nhập giáo viên đã tồn tại trên hệ thống"
+            );
+        }
+
+        // 2. Tạo đối tượng User mới
+        User teacher = new User();
+        teacher.setUsername(request.getUsername());
+        teacher.setPassword(HashUtil.hashPassword(request.getPassword()));
+        teacher.setFullName(request.getFullName());
+        teacher.setEmail(request.getEmail());
+        teacher.setPhone(request.getPhone());
+        teacher.setRole("TEACHER");
+        teacher.setIsDeleted(false);
+
+        // 3. Lưu lại
+        return userRepository.save(teacher);
+    }
+
+    @Override
+    public AuthResponse getUserProfile(Integer userId) {
+        User user = userRepository.findById(userId)
+                .filter(u -> !u.getIsDeleted())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Không tìm thấy tài khoản người dùng"
+                ));
+
+        AuthResponse response = new AuthResponse();
+        response.setId(user.getId());
+        response.setUsername(user.getUsername());
+        response.setFullName(user.getFullName());
+        response.setRole(user.getRole());
+        response.setEmail(user.getEmail());
+        response.setPhone(user.getPhone());
+        response.setAvatarUrl(user.getAvatarUrl());
+        return response;
+    }
+
+    @Override
+    public AuthResponse updateProfile(Integer userId, ProfileRequest request) {
+        User user = userRepository.findById(userId)
+                .filter(u -> !u.getIsDeleted())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Không tìm thấy tài khoản người dùng"
+                ));
+
+        // Xác nhận mật khẩu hiện tại
+        boolean isMatch = HashUtil.checkPassword(request.getCurrentPassword(), user.getPassword());
+        if (!isMatch) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Mật khẩu hiện tại không chính xác"
+            );
+        }
+
+        // Cập nhật thông tin cơ bản
+        user.setFullName(request.getFullName());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setAvatarUrl(request.getAvatarUrl());
+
+        // Nếu có yêu cầu đổi mật khẩu mới
+        if (request.getNewPassword() != null && !request.getNewPassword().trim().isEmpty()) {
+            user.setPassword(HashUtil.hashPassword(request.getNewPassword()));
+        }
+
+        userRepository.save(user);
+
+        // Trả về AuthResponse cập nhật
+        AuthResponse response = new AuthResponse();
+        response.setId(user.getId());
+        response.setUsername(user.getUsername());
+        response.setFullName(user.getFullName());
+        response.setRole(user.getRole());
+        response.setEmail(user.getEmail());
+        response.setPhone(user.getPhone());
+        response.setAvatarUrl(user.getAvatarUrl());
+        return response;
+    }
+
+    @Override
+    public void deleteAccount(Integer userId, String password) {
+        User user = userRepository.findById(userId)
+                .filter(u -> !u.getIsDeleted())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Không tìm thấy tài khoản người dùng"
+                ));
+
+        // Xác nhận mật khẩu
+        boolean isMatch = HashUtil.checkPassword(password, user.getPassword());
+        if (!isMatch) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Mật khẩu không chính xác"
+            );
+        }
+
+        // Xóa mềm
+        user.setIsDeleted(true);
+        userRepository.save(user);
     }
 }

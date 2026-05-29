@@ -43,7 +43,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public ClassroomDTO createClassroom(Classroom classroom) {
         // 1. Kiểm tra giáo viên có tồn tại và đúng role không
-        User teacher = userRepository.findById(classroom.getTeacherId())
+        userRepository.findById(classroom.getTeacherId())
                 .filter(u -> !u.getIsDeleted() && u.getRole().equalsIgnoreCase("TEACHER"))
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
@@ -95,7 +95,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public void enrollStudent(Integer classId, Integer studentId) {
         // 1. Kiểm tra lớp học tồn tại
-        Classroom classroom = classroomRepository.findById(classId)
+        classroomRepository.findById(classId)
                 .filter(c -> !c.getIsDeleted())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -103,7 +103,7 @@ public class ClassroomServiceImpl implements ClassroomService {
                 ));
 
         // 2. Kiểm tra học viên tồn tại và đúng role STUDENT
-        User student = userRepository.findById(studentId)
+        userRepository.findById(studentId)
                 .filter(u -> !u.getIsDeleted() && u.getRole().equalsIgnoreCase("STUDENT"))
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,

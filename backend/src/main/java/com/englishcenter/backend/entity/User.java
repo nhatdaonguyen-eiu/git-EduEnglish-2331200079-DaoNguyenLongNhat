@@ -41,6 +41,13 @@ public class User {
     @Column(nullable = false)
     private String role;
 
+    // Số điện thoại liên hệ
+    private String phone;
+
+    // URL ảnh đại diện (avatar)
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 

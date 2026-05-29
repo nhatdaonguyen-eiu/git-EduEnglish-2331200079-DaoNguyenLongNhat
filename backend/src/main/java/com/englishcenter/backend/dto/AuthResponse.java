@@ -17,4 +17,6 @@ public class AuthResponse {
     private String fullName;
     private String role; // ADMIN, TEACHER, STUDENT
     private String email; // Email liên lạc của tài khoản
+    private String phone;
+    private String avatarUrl;
 }
