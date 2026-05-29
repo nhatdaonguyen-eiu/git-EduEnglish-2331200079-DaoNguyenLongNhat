@@ -20,6 +20,26 @@ function StudentPortal() {
   // Trạng thái Modal chi tiết khóa học
   const [selectedCourse, setSelectedCourse] = useState(null);
 
+  // Trạng thái Đội ngũ Giảng viên
+  const [teachers, setTeachers] = useState([]);
+  const [teachersLoading, setTeachersLoading] = useState(true);
+
+  const fetchActiveTeachers = async () => {
+    try {
+      setTeachersLoading(true);
+      const res = await axios.get('http://localhost:8080/api/auth/teachers');
+      setTeachers(res.data);
+    } catch (err) {
+      console.error("Lỗi lấy danh sách giáo viên:", err);
+    } finally {
+      setTeachersLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchActiveTeachers();
+  }, []);
+
   const regFormRef = useRef(null);
 
   // Debounce tìm kiếm khóa học
@@ -296,6 +316,90 @@ function StudentPortal() {
         )}
       </section>
 
+      {/* 🧭 ĐỘI NGŨ GIẢNG VIÊN SÁNG GIÁ (FACULTY SHOWCASE) */}
+      <section className="max-w-5xl mx-auto px-4 mt-24">
+        <div className="text-center mb-12">
+          <span className="text-xs font-bold text-orange-500 bg-orange-50 px-3 py-1 rounded-full uppercase tracking-wider">
+            Chất lượng đào tạo hàng đầu
+          </span>
+          <h2 className="text-3xl font-black text-slate-800 mt-3">Đội Ngũ Giảng Viên Sáng Giá</h2>
+          <p className="text-slate-500 text-sm mt-2 max-w-lg mx-auto">
+            Gặp gỡ những chuyên gia Anh ngữ tài năng, tận tâm với trình độ chuyên môn cao và phương pháp giảng dạy truyền cảm hứng.
+          </p>
+        </div>
+
+        {teachersLoading ? (
+          <div className="py-12 flex flex-col items-center justify-center gap-3">
+            <div className="w-8 h-8 border-3 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-xs text-slate-400 font-semibold">Đang kết nối đội ngũ giảng viên...</p>
+          </div>
+        ) : teachers.length === 0 ? (
+          <div className="text-center py-10 bg-white rounded-2xl border border-slate-100 p-8 max-w-md mx-auto shadow-sm">
+            <p className="text-3xl">👨‍🏫</p>
+            <h3 className="text-sm font-bold text-slate-700 mt-2">EduEnglish Faculty</h3>
+            <p className="text-xs text-slate-400 mt-1">Đội ngũ giảng viên quốc tế sẽ sớm cập nhật đầy đủ hồ sơ trực tuyến.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {teachers.map((teacher) => {
+              const defaultAvatar = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80';
+              return (
+                <div 
+                  key={teacher.id} 
+                  className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100/80 flex flex-col group p-6 relative"
+                >
+                  {/* Decorative background aura */}
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-full blur-xl group-hover:bg-orange-500/10 transition-colors"></div>
+
+                  <div className="flex items-center gap-4 border-b border-slate-100 pb-4 mb-4">
+                    {/* Avatar */}
+                    <div className="w-16 h-16 rounded-2xl overflow-hidden shadow border border-slate-200/60 bg-slate-50 shrink-0">
+                      {teacher.avatarUrl ? (
+                        <img 
+                          src={teacher.avatarUrl} 
+                          alt={teacher.fullName} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-black text-xl select-none">
+                          {teacher.fullName.charAt(0)}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="text-left min-w-0">
+                      <h3 className="text-base font-black text-slate-800 truncate group-hover:text-orange-500 transition-colors duration-200">{teacher.fullName}</h3>
+                      <p className="text-[10px] font-black text-orange-500 bg-orange-50 border border-orange-100/60 px-2 py-0.5 rounded inline-block uppercase tracking-wider mt-1 truncate max-w-full">
+                        {teacher.specialty || "Giảng viên Anh ngữ"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 flex-grow text-left text-xs font-semibold leading-relaxed">
+                    {/* Kinh nghiệm */}
+                    <div className="flex items-center gap-2 text-slate-500">
+                      <span className="text-sm shrink-0">🕒</span>
+                      <p className="truncate text-slate-600">{teacher.experience || "Nhiều năm kinh nghiệm giảng dạy"}</p>
+                    </div>
+
+                    {/* Bằng cấp */}
+                    <div className="flex items-center gap-2 text-slate-500">
+                      <span className="text-sm shrink-0">📜</span>
+                      <p className="truncate text-slate-700 font-extrabold">{teacher.certificates || "Đầy đủ chứng chỉ sư phạm quốc tế"}</p>
+                    </div>
+
+                    {/* Lời giới thiệu ngắn */}
+                    <div className="pt-2 border-t border-slate-50 text-slate-400 font-medium text-[11px] leading-relaxed line-clamp-3">
+                      "{teacher.bio || "Phương pháp giảng dạy sinh động giúp học viên hứng thú học tập và đạt kết quả tối đa."}"
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
       {/* 4. BIỂU MẪU ĐĂNG KÝ TƯ VẤN / HỌC THỬ (DƯỚI TRANG) */}
       <section ref={regFormRef} className="max-w-2xl mx-auto px-4 mt-24">
         <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-lg border border-slate-100 relative overflow-hidden">
@@ -420,69 +524,144 @@ function StudentPortal() {
         </div>
       </section>
 
-      {/* 5. MODAL CHI TIẾT KHÓA HỌC SANG TRỌNG */}
+      {/* 5. MODAL CHI TIẾT KHÓA HỌC SANG TRỌNG (HIGH-END ROADMAP SHOWCASE) */}
       {selectedCourse && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-lg w-full border border-slate-100 animate-slide-up flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-2xl w-full border border-slate-100 animate-slide-up flex flex-col max-h-[92vh]">
             
             {/* Header / Ảnh bìa popup */}
-            <div className="relative h-48 bg-slate-100 overflow-hidden shrink-0">
+            <div className="relative h-56 bg-slate-100 overflow-hidden shrink-0">
               <img 
                 src={selectedCourse.thumbnailUrl || 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=600&auto=format&fit=crop&q=60'} 
                 alt={selectedCourse.title} 
                 className="w-full h-full object-cover"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+              
               <button 
                 onClick={() => setSelectedCourse(null)}
-                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center font-bold transition-all cursor-pointer border-none shadow-md text-sm"
+                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center font-bold transition-all cursor-pointer border-none shadow-md text-sm z-10"
               >
                 ✕
               </button>
-              <span className="absolute bottom-4 left-4 px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-full">
-                {selectedCourse.category}
-              </span>
+              
+              <div className="absolute bottom-4 left-5 right-5 text-left">
+                <span className="inline-block px-3 py-1 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow">
+                  {selectedCourse.category} • {selectedCourse.level} Level
+                </span>
+                <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5 drop-shadow-sm">{selectedCourse.title}</h3>
+              </div>
             </div>
 
-            {/* Nội dung chi tiết */}
-            <div className="p-6 overflow-y-auto flex-grow leading-relaxed">
-              <span className="text-[10px] font-black text-orange-500 bg-orange-50 border border-orange-100/50 px-2 py-0.5 rounded uppercase tracking-wider">
-                {selectedCourse.level} Level
-              </span>
-              <h3 className="text-xl sm:text-2xl font-black text-slate-800 mt-2">{selectedCourse.title}</h3>
+            {/* Nội dung chi tiết lộ trình */}
+            <div className="p-6 sm:p-8 overflow-y-auto flex-grow space-y-6">
               
-              <div className="mt-4">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Lộ trình học tập chi tiết</h4>
-                <p className="text-slate-600 text-sm mt-1.5 whitespace-pre-line bg-slate-50 p-4 rounded-2xl border border-slate-100 font-medium">
-                  {selectedCourse.description || "Trung tâm sẽ cung cấp lộ trình chi tiết khi tư vấn cụ thể."}
+              {/* Tóm tắt nhanh & Thời lượng học */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100/40 flex items-start gap-3">
+                  <span className="text-xl">🕒</span>
+                  <div>
+                    <h4 className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">Thời lượng khóa học</h4>
+                    <p className="text-sm font-black text-slate-800 mt-0.5">{selectedCourse.duration || "Chưa thiết lập"}</p>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100/40 flex items-start gap-3">
+                  <span className="text-xl">👥</span>
+                  <div>
+                    <h4 className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Đối tượng phù hợp</h4>
+                    <p className="text-sm font-black text-slate-800 mt-0.5 line-clamp-2" title={selectedCourse.suitableFor}>{selectedCourse.suitableFor || "Học viên mong muốn nâng cao trình độ"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* MÔ TẢ KHÓA HỌC */}
+              <div>
+                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Giới thiệu khóa học
+                </h4>
+                <p className="text-slate-600 text-sm mt-1.5 leading-relaxed font-medium">
+                  {selectedCourse.description || "Khóa học được thiết kế đặc thù nhằm nâng cao toàn diện năng lực tiếng Anh của học viên trong thời gian tối ưu."}
                 </p>
               </div>
 
-              <div className="mt-6 flex justify-between items-center bg-slate-50/50 p-3 rounded-2xl border border-slate-100">
+              {/* MỤC TIÊU & PHƯƠNG PHÁP & CAM KẾT (GRID 3 CỘT) */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 rounded-2xl border border-slate-100 bg-slate-50/60 flex flex-col justify-between">
+                  <div>
+                    <h5 className="text-[10px] font-black text-emerald-600 uppercase tracking-wider flex items-center gap-1">
+                      <span>🎯</span> Mục tiêu đầu ra
+                    </h5>
+                    <p className="text-xs text-slate-500 mt-1.5 font-semibold leading-relaxed">
+                      {selectedCourse.outputGoals || "Đạt chuẩn cam kết đầu ra theo lộ trình quốc tế."}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl border border-slate-100 bg-slate-50/60 flex flex-col justify-between">
+                  <div>
+                    <h5 className="text-[10px] font-black text-indigo-600 uppercase tracking-wider flex items-center gap-1">
+                      <span>🧠</span> Phương pháp học
+                    </h5>
+                    <p className="text-xs text-slate-500 mt-1.5 font-semibold leading-relaxed">
+                      {selectedCourse.learningMethod || "Phản xạ giao tiếp năng động kết hợp tương tác trực quan."}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl border border-slate-100 bg-slate-50/60 flex flex-col justify-between">
+                  <div>
+                    <h5 className="text-[10px] font-black text-amber-600 uppercase tracking-wider flex items-center gap-1">
+                      <span>🤝</span> Cam kết đào tạo
+                    </h5>
+                    <p className="text-xs text-slate-500 mt-1.5 font-semibold leading-relaxed">
+                      {selectedCourse.commitment || "Cam kết hỗ trợ học viên đạt mục tiêu đầu ra cam đoan."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* LỘ TRÌNH & GIÁO TRÌNH CHI TIẾT */}
+              <div>
+                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mb-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Giáo trình & Lộ trình đào tạo chi tiết
+                </h4>
+                <div className="bg-slate-50 border border-slate-150 p-5 rounded-2xl font-mono text-xs leading-relaxed text-slate-700 whitespace-pre-line max-h-56 overflow-y-auto">
+                  {selectedCourse.syllabus || "Tuần 1: Củng cố nền tảng phát âm chuẩn\nTuần 2: Mở rộng từ vựng giao tiếp cốt lõi\nTuần 3: Chiến thuật làm bài & Luyện đề thực tế"}
+                </div>
+              </div>
+
+              {/* HỌC PHÍ & TRẠNG THÁI KHAI GIẢNG */}
+              <div className="flex justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-150 shrink-0">
                 <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase">Học phí trọn gói</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Học phí trọn khóa ưu đãi</p>
                   <p className="text-xl font-black text-orange-500 mt-0.5">
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedCourse.price)}
                   </p>
                 </div>
-                <span className="text-[10px] text-green-600 font-extrabold bg-green-50 px-2.5 py-1 rounded-full border border-green-200/50">
-                  🎉 Khai giảng sớm
+                <span className="text-[10px] text-green-600 font-extrabold bg-green-50 border border-green-200 px-3 py-1.5 rounded-full">
+                  💚 Đang mở cổng đăng ký
                 </span>
               </div>
+
             </div>
 
             {/* Footer popup */}
-            <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-3 shrink-0">
+            <div className="p-4 sm:px-6 bg-slate-50 border-t border-slate-100 flex gap-3 shrink-0">
               <button 
                 onClick={() => setSelectedCourse(null)}
                 className="flex-1 py-3 bg-white hover:bg-slate-100 text-slate-600 font-bold rounded-xl transition-all text-xs border border-slate-200 cursor-pointer"
               >
-                Đóng lại
+                Quay lại
               </button>
               <button 
-                onClick={() => handleRegisterClick(selectedCourse.id)}
+                onClick={() => {
+                  setSelectedCourse(null);
+                  handleRegisterClick(selectedCourse.id);
+                }}
                 className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all shadow-md shadow-orange-500/10 hover:shadow-orange-500/20 text-xs cursor-pointer"
               >
-                📝 Đăng ký khóa học này
+                📝 Đăng ký học ngay
               </button>
             </div>
 

@@ -53,6 +53,14 @@ public class UserServiceImpl implements UserService {
             teacher.setEmail("david.harrison@eduenglish.edu.vn");
             teacher.setRole("TEACHER");
             teacher.setIsDeleted(false);
+            
+            // Hồ sơ chuyên môn giảng dạy mẫu uy tín
+            teacher.setSpecialty("Chuyên Gia Ôn Luyện IELTS & Tiếng Anh Giao Tiếp");
+            teacher.setCertificates("IELTS 8.5, CELTA Certified, Cambridge CELT-P");
+            teacher.setExperience("8+ năm kinh nghiệm giảng dạy tại Anh & Việt Nam");
+            teacher.setBio("Thầy David nổi tiếng với phong cách dạy học năng động, phương pháp phản xạ trực quan giúp học viên mất gốc lấy lại căn bản nhanh chóng.");
+            teacher.setIsFeatured(true);
+            
             userRepository.save(teacher);
 
             // 3. Tài khoản STUDENT
@@ -95,6 +103,13 @@ public class UserServiceImpl implements UserService {
         response.setEmail(user.getEmail()); // Gán Email người dùng
         response.setPhone(user.getPhone());
         response.setAvatarUrl(user.getAvatarUrl());
+        
+        // Gán thông tin hồ sơ giảng dạy (TEACHER)
+        response.setSpecialty(user.getSpecialty());
+        response.setCertificates(user.getCertificates());
+        response.setExperience(user.getExperience());
+        response.setBio(user.getBio());
+        response.setIsFeatured(user.getIsFeatured());
 
         return response;
     }
@@ -166,6 +181,14 @@ public class UserServiceImpl implements UserService {
         response.setEmail(user.getEmail());
         response.setPhone(user.getPhone());
         response.setAvatarUrl(user.getAvatarUrl());
+        
+        // Gán thông tin hồ sơ giảng dạy (TEACHER)
+        response.setSpecialty(user.getSpecialty());
+        response.setCertificates(user.getCertificates());
+        response.setExperience(user.getExperience());
+        response.setBio(user.getBio());
+        response.setIsFeatured(user.getIsFeatured());
+        
         return response;
     }
 
@@ -192,6 +215,12 @@ public class UserServiceImpl implements UserService {
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
         user.setAvatarUrl(request.getAvatarUrl());
+        
+        // Cập nhật thông tin giảng dạy nếu có
+        user.setSpecialty(request.getSpecialty());
+        user.setCertificates(request.getCertificates());
+        user.setExperience(request.getExperience());
+        user.setBio(request.getBio());
 
         // Nếu có yêu cầu đổi mật khẩu mới
         if (request.getNewPassword() != null && !request.getNewPassword().trim().isEmpty()) {
@@ -209,6 +238,14 @@ public class UserServiceImpl implements UserService {
         response.setEmail(user.getEmail());
         response.setPhone(user.getPhone());
         response.setAvatarUrl(user.getAvatarUrl());
+        
+        // Đồng bộ trả về các trường giảng dạy mới
+        response.setSpecialty(user.getSpecialty());
+        response.setCertificates(user.getCertificates());
+        response.setExperience(user.getExperience());
+        response.setBio(user.getBio());
+        response.setIsFeatured(user.getIsFeatured());
+        
         return response;
     }
 

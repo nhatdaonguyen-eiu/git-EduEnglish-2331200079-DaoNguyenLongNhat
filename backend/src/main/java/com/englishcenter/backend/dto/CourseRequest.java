@@ -56,4 +56,12 @@ public class CourseRequest {
     private BigDecimal price;
 
     private String thumbnailUrl; // Không bắt buộc
+
+    // 🧭 THÔNG TIN LỘ TRÌNH KHÓA HỌC
+    private String suitableFor;
+    private String outputGoals;
+    private String duration;
+    private String commitment;
+    private String learningMethod;
+    private String syllabus;
 }

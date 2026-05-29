@@ -126,6 +126,14 @@ public class CourseServiceImpl implements CourseService {
         course.setCategory(request.getCategory());
         course.setPrice(request.getPrice());
         course.setThumbnailUrl(request.getThumbnailUrl());
+        
+        // Cập nhật các trường lộ trình học tập chi tiết
+        course.setSuitableFor(request.getSuitableFor());
+        course.setOutputGoals(request.getOutputGoals());
+        course.setDuration(request.getDuration());
+        course.setCommitment(request.getCommitment());
+        course.setLearningMethod(request.getLearningMethod());
+        course.setSyllabus(request.getSyllabus());
         // createdAt giữ nguyên (updatable = false trong Entity)
         // updatedAt tự cập nhật nhờ @UpdateTimestamp → không cần set thủ công
 
@@ -180,6 +188,15 @@ public class CourseServiceImpl implements CourseService {
         dto.setCategory(course.getCategory());
         dto.setPrice(course.getPrice());
         dto.setThumbnailUrl(course.getThumbnailUrl());
+        
+        // Map các cột lộ trình học tập chi tiết
+        dto.setSuitableFor(course.getSuitableFor());
+        dto.setOutputGoals(course.getOutputGoals());
+        dto.setDuration(course.getDuration());
+        dto.setCommitment(course.getCommitment());
+        dto.setLearningMethod(course.getLearningMethod());
+        dto.setSyllabus(course.getSyllabus());
+
         dto.setCreatedAt(course.getCreatedAt());
         // isDeleted KHÔNG được set vào DTO → frontend không nhìn thấy
         return dto;
@@ -198,6 +215,15 @@ public class CourseServiceImpl implements CourseService {
         course.setCategory(request.getCategory());
         course.setPrice(request.getPrice());
         course.setThumbnailUrl(request.getThumbnailUrl());
+        
+        // Map các cột lộ trình học tập chi tiết
+        course.setSuitableFor(request.getSuitableFor());
+        course.setOutputGoals(request.getOutputGoals());
+        course.setDuration(request.getDuration());
+        course.setCommitment(request.getCommitment());
+        course.setLearningMethod(request.getLearningMethod());
+        course.setSyllabus(request.getSyllabus());
+
         course.setIsDeleted(false); // Mặc định khi tạo mới: chưa xóa
         // createdAt, updatedAt sẽ được @CreationTimestamp tự điền khi save()
         return course;

@@ -4,6 +4,7 @@ import axios from 'axios';
 function CourseForm({ formData, onChange, onSubmit, editingId, onCancel }) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [showRoadmap, setShowRoadmap] = useState(false);
 
   // Xử lý upload ảnh qua API
   const handleFileChange = async (e) => {
@@ -186,6 +187,106 @@ function CourseForm({ formData, onChange, onSubmit, editingId, onCancel }) {
           
           {uploadError && (
             <p className="text-xs font-semibold text-red-500 mt-1">⚠️ {uploadError}</p>
+          )}
+        </div>
+
+        {/* 🧭 PHẦN THIẾT LẬP LỘ TRÌNH & GIÁO TRÌNH CHI TIẾT (COLLAPSIBLE) */}
+        <div className="border border-slate-200/80 rounded-2xl bg-slate-50/40 overflow-hidden transition-all duration-300">
+          <button
+            type="button"
+            onClick={() => setShowRoadmap(!showRoadmap)}
+            className="w-full px-5 py-4 flex items-center justify-between font-bold text-slate-700 hover:bg-slate-100/50 transition-all cursor-pointer text-left border-none bg-transparent text-sm"
+          >
+            <span className="flex items-center gap-2">
+              🧭 Lộ Trình & Thông Tin Chi Tiết Khóa Học
+            </span>
+            <span className="text-slate-400 font-bold text-xs">
+              {showRoadmap ? "▼ Thu gọn" : "▶ Mở rộng thiết lập"}
+            </span>
+          </button>
+
+          {showRoadmap && (
+            <div className="p-5 border-t border-slate-200/60 flex flex-col gap-4 animate-fade-in bg-white">
+              {/* DỰ KIẾN THỜI LƯỢNG HỌC & ĐỐI TƯỢNG PHÙ HỢP */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Thời lượng học</label>
+                  <input 
+                    type="text" 
+                    name="duration" 
+                    value={formData.duration || ''} 
+                    onChange={onChange} 
+                    placeholder="Ví dụ: 3 tháng (36 buổi)" 
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs font-semibold bg-slate-50/30"
+                  />
+                </div>
+                
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Ai phù hợp (Đối tượng)</label>
+                  <input 
+                    type="text" 
+                    name="suitableFor" 
+                    value={formData.suitableFor || ''} 
+                    onChange={onChange} 
+                    placeholder="Ví dụ: Người mới bắt đầu, mất gốc Tiếng Anh" 
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs font-semibold bg-slate-50/30"
+                  />
+                </div>
+              </div>
+
+              {/* MỤC TIÊU ĐẦU RA */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Mục tiêu đầu ra</label>
+                <textarea 
+                  name="outputGoals" 
+                  value={formData.outputGoals || ''} 
+                  onChange={onChange} 
+                  placeholder="Ví dụ: Đạt tối thiểu 5.5 IELTS hoặc tương đương, tự tin giao tiếp cơ bản..." 
+                  rows="2" 
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs font-medium bg-slate-50/30 resize-none leading-relaxed"
+                />
+              </div>
+
+              {/* PHƯƠNG PHÁP HỌC & CAM KẾT */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Phương pháp giảng dạy</label>
+                  <textarea 
+                    name="learningMethod" 
+                    value={formData.learningMethod || ''} 
+                    onChange={onChange} 
+                    placeholder="Ví dụ: Thực hành phản xạ 80%, công nghệ tương tác AI..." 
+                    rows="2" 
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs font-medium bg-slate-50/30 resize-none leading-relaxed"
+                  />
+                </div>
+                
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Cam kết từ trung tâm</label>
+                  <textarea 
+                    name="commitment" 
+                    value={formData.commitment || ''} 
+                    onChange={onChange} 
+                    placeholder="Ví dụ: Cam kết hoàn 100% học phí hoặc học lại miễn phí nếu không đạt đầu ra..." 
+                    rows="2" 
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs font-medium bg-slate-50/30 resize-none leading-relaxed"
+                  />
+                </div>
+              </div>
+
+              {/* GIÁO TRÌNH & LỘ TRÌNH CHI TIẾT */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Giáo trình & Lộ trình chi tiết từng tuần/chặng</label>
+                <textarea 
+                  name="syllabus" 
+                  value={formData.syllabus || ''} 
+                  onChange={onChange} 
+                  placeholder={`Tuần 1-2: Củng cố phát âm chuẩn IPA\nTuần 3-6: Xây dựng vốn từ vựng chủ đề quen thuộc\nTuần 7-12: Luyện giải đề thi thực tế...`} 
+                  rows="4" 
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-xs font-medium bg-slate-50/30 leading-relaxed"
+                />
+              </div>
+            </div>
           )}
         </div>
 

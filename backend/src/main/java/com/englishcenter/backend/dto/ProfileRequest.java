@@ -24,6 +24,12 @@ public class ProfileRequest {
 
     private String avatarUrl;
 
+    // 🎓 THÔNG TIN HỒ SƠ GIẢNG DẠY (TEACHER)
+    private String specialty;
+    private String certificates;
+    private String experience;
+    private String bio;
+
     // Mật khẩu hiện tại — bắt buộc để xác nhận quyền sở hữu tài khoản
     @NotBlank(message = "Vui lòng nhập mật khẩu hiện tại để xác nhận")
     private String currentPassword;

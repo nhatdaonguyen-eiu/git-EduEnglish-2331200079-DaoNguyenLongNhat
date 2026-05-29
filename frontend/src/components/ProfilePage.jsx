@@ -9,6 +9,10 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
     email: user?.email || '',
     phone: user?.phone || '',
     avatarUrl: user?.avatarUrl || '',
+    specialty: user?.specialty || '',
+    certificates: user?.certificates || '',
+    experience: user?.experience || '',
+    bio: user?.bio || '',
   });
 
   // Form state cho đổi mật khẩu
@@ -80,6 +84,10 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
         email: formData.email,
         phone: formData.phone,
         avatarUrl: formData.avatarUrl,
+        specialty: formData.specialty || null,
+        certificates: formData.certificates || null,
+        experience: formData.experience || null,
+        bio: formData.bio || null,
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword || null,
       };
@@ -311,6 +319,79 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
             </div>
           </div>
         </div>
+
+        {/* THÔNG TIN HỌC THUẬT & GIẢNG DẠY (CHỈ DÀNH CHO GIÁO VIÊN) */}
+        {user?.role === 'TEACHER' && (
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 sm:p-8 mb-6">
+            <h2 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-2">
+              🎓 Hồ Sơ Giảng Dạy & Trình Độ Học Thuật
+            </h2>
+
+            <div className="flex flex-col gap-5">
+              {/* Chuyên môn nổi bật */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  💼 Chuyên môn nổi bật
+                </label>
+                <input
+                  type="text"
+                  name="specialty"
+                  value={formData.specialty || ''}
+                  onChange={handleChange}
+                  placeholder="Ví dụ: Chuyên Gia Luyện Thi IELTS Writing & Speaking"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all font-semibold"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* Bằng cấp & Chứng chỉ */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    📜 Bằng cấp / Chứng chỉ tiêu biểu
+                  </label>
+                  <input
+                    type="text"
+                    name="certificates"
+                    value={formData.certificates || ''}
+                    onChange={handleChange}
+                    placeholder="Ví dụ: IELTS 8.5, CELTA, Cambridge TKT"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all font-semibold"
+                  />
+                </div>
+
+                {/* Kinh nghiệm giảng dạy */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    🕒 Kinh nghiệm giảng dạy
+                  </label>
+                  <input
+                    type="text"
+                    name="experience"
+                    value={formData.experience || ''}
+                    onChange={handleChange}
+                    placeholder="Ví dụ: 5+ năm giảng dạy tại trung tâm"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all font-semibold"
+                  />
+                </div>
+              </div>
+
+              {/* Giới thiệu bản thân (Bio) */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  📝 Lời tự giới thiệu ngắn (Bio)
+                </label>
+                <textarea
+                  name="bio"
+                  value={formData.bio || ''}
+                  onChange={handleChange}
+                  placeholder="Nhập tiểu sử ngắn gọn truyền cảm hứng học tập đến học viên..."
+                  rows="3"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all resize-none leading-relaxed font-medium"
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ĐỔI MẬT KHẨU — Collapsible */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm mb-6 overflow-hidden">

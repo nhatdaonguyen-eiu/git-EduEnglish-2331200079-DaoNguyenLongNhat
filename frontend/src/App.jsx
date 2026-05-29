@@ -37,7 +37,20 @@ function App() {
   const [loading, setLoading] = useState(true);
   
   // Trạng thái Form nhập liệu Khóa học của Admin
-  const initialForm = { title: '', description: '', level: 'Beginner', category: 'IELTS', price: '', thumbnailUrl: '' };
+  const initialForm = { 
+    title: '', 
+    description: '', 
+    level: 'Beginner', 
+    category: 'IELTS', 
+    price: '', 
+    thumbnailUrl: '',
+    suitableFor: '',
+    outputGoals: '',
+    duration: '',
+    commitment: '',
+    learningMethod: '',
+    syllabus: ''
+  };
   const [formData, setFormData] = useState(initialForm);
   const [editingId, setEditingId] = useState(null);
 
@@ -121,7 +134,13 @@ function App() {
       level: course.level, 
       category: course.category, 
       price: course.price,
-      thumbnailUrl: course.thumbnailUrl || ''
+      thumbnailUrl: course.thumbnailUrl || '',
+      suitableFor: course.suitableFor || '',
+      outputGoals: course.outputGoals || '',
+      duration: course.duration || '',
+      commitment: course.commitment || '',
+      learningMethod: course.learningMethod || '',
+      syllabus: course.syllabus || ''
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

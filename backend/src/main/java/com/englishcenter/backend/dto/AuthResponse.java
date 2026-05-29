@@ -19,4 +19,11 @@ public class AuthResponse {
     private String email; // Email liên lạc của tài khoản
     private String phone;
     private String avatarUrl;
+
+    // 🎓 THÔNG TIN HỒ SƠ GIẢNG DẠY (TEACHER)
+    private String specialty;
+    private String certificates;
+    private String experience;
+    private String bio;
+    private Boolean isFeatured;
 }

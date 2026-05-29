@@ -29,6 +29,15 @@ public class CourseDTO {
     private String category;
     private BigDecimal price;
     private String thumbnailUrl;
+    
+    // 🧭 THÔNG TIN LỘ TRÌNH KHÓA HỌC
+    private String suitableFor;
+    private String outputGoals;
+    private String duration;
+    private String commitment;
+    private String learningMethod;
+    private String syllabus;
+
     private LocalDateTime createdAt;
 
     // ✅ LƯU Ý: Không có "isDeleted"

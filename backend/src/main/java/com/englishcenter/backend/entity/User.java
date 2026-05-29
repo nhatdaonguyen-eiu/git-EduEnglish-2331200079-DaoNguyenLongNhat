@@ -3,6 +3,7 @@ package com.englishcenter.backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 
@@ -26,6 +27,7 @@ public class User {
     private String username;
 
     // Mật khẩu đã mã hóa bảo mật
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 
@@ -47,6 +49,19 @@ public class User {
     // URL ảnh đại diện (avatar)
     @Column(name = "avatar_url")
     private String avatarUrl;
+
+    // 🎓 THÔNG TIN HỒ SƠ GIẢNG DẠY (DÀNH CHO TEACHER)
+    private String specialty;
+
+    private String certificates;
+
+    private String experience;
+
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
+    @Column(name = "is_featured", nullable = false, columnDefinition = "boolean default false")
+    private Boolean isFeatured = false;
 
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;

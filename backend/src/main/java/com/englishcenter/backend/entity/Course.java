@@ -48,6 +48,24 @@ public class Course {
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
+    // 🧭 THÔNG TIN LỘ TRÌNH KHÓA HỌC (CHI TIẾT)
+    @Column(name = "suitable_for", columnDefinition = "TEXT")
+    private String suitableFor;
+
+    @Column(name = "output_goals", columnDefinition = "TEXT")
+    private String outputGoals;
+
+    private String duration;
+
+    @Column(columnDefinition = "TEXT")
+    private String commitment;
+
+    @Column(name = "learning_method", columnDefinition = "TEXT")
+    private String learningMethod;
+
+    @Column(columnDefinition = "TEXT")
+    private String syllabus;
+
     // ✅ Xóa mềm: TRUE = đã xóa, FALSE = còn tồn tại
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
