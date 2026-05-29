@@ -1,37 +1,214 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 
 function CourseForm({ formData, onChange, onSubmit, editingId, onCancel }) {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+
+  // Xử lý upload ảnh qua API
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const data = new FormData();
+    data.append('file', file);
+
+    setUploading(true);
+    setUploadError('');
+
+    try {
+      const response = await axios.post('http://localhost:8080/api/upload', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      // Giả lập sự kiện e.target để cập nhật giá trị trong App.jsx
+      onChange({
+        target: {
+          name: 'thumbnailUrl',
+          value: response.data.url,
+        },
+      });
+    } catch (err) {
+      console.error("Lỗi upload ảnh:", err);
+      setUploadError(err.response?.data?.error || 'Không thể tải ảnh lên. Vui lòng thử lại.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Xóa ảnh hiện tại
+  const handleRemoveImage = () => {
+    onChange({
+      target: {
+        name: 'thumbnailUrl',
+        value: '',
+      },
+    });
+  };
+
   return (
-    <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', maxWidth: '600px', margin: '0 auto 30px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
-      <h2 style={{ marginTop: 0 }}>{editingId ? "✏️ Cập Nhật Khóa Học" : "✨ Thêm Khóa Học Mới"}</h2>
-      <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+    <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl mx-auto mb-10 shadow-sm border border-slate-100 transition-all duration-300">
+      <h2 className="text-xl sm:text-2xl font-black text-slate-800 mb-6 flex items-center gap-2">
+        {editingId ? "✏️ Cập Nhật Khóa Học" : "✨ Thêm Khóa Học Mới"}
+      </h2>
+      
+      <form onSubmit={onSubmit} className="flex flex-col gap-5">
+        {/* TÊN KHÓA HỌC */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tên khóa học</label>
+          <input 
+            type="text" 
+            name="title" 
+            value={formData.title} 
+            onChange={onChange} 
+            placeholder="Ví dụ: IELTS 7.0 mục tiêu đầu ra" 
+            required 
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-slate-800 placeholder-slate-400 bg-slate-50/30 font-medium"
+          />
+        </div>
         
-        <input type="text" name="title" value={formData.title} onChange={onChange} placeholder="Tên khóa học (VD: IELTS 7.0)" required style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }} />
+        {/* MÔ TẢ KHÓA HỌC */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Mô tả chi tiết</label>
+          <textarea 
+            name="description" 
+            value={formData.description || ''} 
+            onChange={onChange} 
+            placeholder="Nhập lộ trình học, cam kết kết quả và tài liệu đính kèm..." 
+            rows="3" 
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-slate-800 placeholder-slate-400 bg-slate-50/30 font-medium resize-none leading-relaxed"
+          />
+        </div>
         
-        <textarea name="description" value={formData.description} onChange={onChange} placeholder="Mô tả khóa học..." rows="3" style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }} />
-        
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <select name="level" value={formData.level} onChange={onChange} style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}>
-            <option value="Beginner">Beginner</option>
-            <option value="Intermediate">Intermediate</option>
-            <option value="Advanced">Advanced</option>
-          </select>
+        {/* CẤP ĐỘ & DANH MỤC */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Cấp độ học viên</label>
+            <select 
+              name="level" 
+              value={formData.level} 
+              onChange={onChange} 
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-slate-700 bg-slate-50/30 font-semibold cursor-pointer"
+            >
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+            </select>
+          </div>
           
-          <select name="category" value={formData.category} onChange={onChange} style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}>
-            <option value="IELTS">IELTS</option>
-            <option value="TOEIC">TOEIC</option>
-            <option value="Giao tiếp">Giao tiếp</option>
-          </select>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Danh mục chương trình</label>
+            <select 
+              name="category" 
+              value={formData.category} 
+              onChange={onChange} 
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-slate-700 bg-slate-50/30 font-semibold cursor-pointer"
+            >
+              <option value="IELTS">IELTS</option>
+              <option value="TOEIC">TOEIC</option>
+              <option value="Giao tiếp">Giao tiếp</option>
+            </select>
+          </div>
         </div>
 
-        <input type="number" name="price" value={formData.price} onChange={onChange} placeholder="Giá tiền (VD: 5000000)" required min="0" style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }} />
-        
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button type="submit" style={{ flex: 1, padding: '10px', backgroundColor: editingId ? '#007bff' : '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-            {editingId ? "Lưu Thay Đổi" : "Tạo Khóa Học"}
+        {/* HỌC PHÍ */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Học phí trọn khóa (VNĐ)</label>
+          <input 
+            type="number" 
+            name="price" 
+            value={formData.price} 
+            onChange={onChange} 
+            placeholder="Ví dụ: 4500000" 
+            required 
+            min="0" 
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-slate-800 placeholder-slate-400 bg-slate-50/30 font-bold"
+          />
+        </div>
+
+        {/* BỘ CHỌN HÌNH ẢNH MINH HỌA (UPLOADER THỰC TẾ) */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Ảnh minh họa khóa học</label>
+          
+          {formData.thumbnailUrl ? (
+            // HIỂN THỊ ẢNH ĐÃ UPLOAD & NÚT GỠ BỎ
+            <div className="relative rounded-2xl overflow-hidden border border-slate-200 h-48 bg-slate-50 group shadow-inner">
+              <img 
+                src={formData.thumbnailUrl} 
+                alt="Preview" 
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3">
+                <label className="px-4 py-2 bg-white/90 hover:bg-white text-slate-800 text-xs font-bold rounded-xl cursor-pointer shadow-md transition-all">
+                  Thay ảnh
+                  <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                </label>
+                <button 
+                  type="button" 
+                  onClick={handleRemoveImage} 
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer"
+                >
+                  Xóa ảnh
+                </button>
+              </div>
+            </div>
+          ) : (
+            // KHU VỰC KÉO THẢ/CHỌN FILE ĐỂ UPLOAD
+            <label className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all ${
+              uploading 
+                ? 'border-orange-300 bg-orange-50/10' 
+                : 'border-slate-200 hover:border-orange-500/50 hover:bg-slate-50/30'
+            }`}>
+              <input type="file" accept="image/*" onChange={handleFileChange} disabled={uploading} className="hidden" />
+              
+              {uploading ? (
+                // LOADING SPINNER
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm font-semibold text-orange-600">Đang upload ảnh...</span>
+                </div>
+              ) : (
+                // ICON & TEXT CHỌN FILE
+                <>
+                  <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-2xl text-orange-500">
+                    🖼️
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-bold text-slate-700">Chọn một hình ảnh thực tế</p>
+                    <p className="text-xs text-slate-400 mt-1">Chấp nhận JPG, PNG, WEBP tối đa 10MB</p>
+                  </div>
+                </>
+              )}
+            </label>
+          )}
+          
+          {uploadError && (
+            <p className="text-xs font-semibold text-red-500 mt-1">⚠️ {uploadError}</p>
+          )}
+        </div>
+
+        {/* NÚT TÁC VỤ GỬI FORM */}
+        <div className="flex flex-col sm:flex-row gap-3 mt-4 pt-3 border-t border-slate-100">
+          <button 
+            type="submit" 
+            disabled={uploading}
+            className={`flex-1 py-3 px-5 text-sm font-bold text-white rounded-xl transition-all duration-300 shadow-md flex items-center justify-center cursor-pointer ${
+              editingId 
+                ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-blue-500/10' 
+                : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-orange-500/10'
+            } ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {editingId ? "💾 Lưu Thay Đổi" : "✨ Tạo Khóa Học"}
           </button>
+          
           {editingId && (
-            <button type="button" onClick={onCancel} style={{ flex: 1, padding: '10px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+            <button 
+              type="button" 
+              onClick={onCancel} 
+              className="flex-1 sm:flex-initial py-3 px-6 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all cursor-pointer text-center"
+            >
               Hủy Bỏ
             </button>
           )}

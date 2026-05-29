@@ -46,11 +46,14 @@ public class CourseController {
 
     // ─────────────────────────────────────────────────────────────
     //  GET /api/courses
-    //  Lấy danh sách tất cả khóa học đang hoạt động
+    //  Lấy danh sách khóa học đang hoạt động có tìm kiếm & lọc
     // ─────────────────────────────────────────────────────────────
     @GetMapping
-    public ResponseEntity<List<CourseDTO>> getAllCourses() {
-        List<CourseDTO> courses = courseService.getAllCourses();
+    public ResponseEntity<List<CourseDTO>> getAllCourses(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String level,
+            @RequestParam(required = false) String category) {
+        List<CourseDTO> courses = courseService.getAllCourses(search, level, category);
         return ResponseEntity.ok(courses);  // 200 OK
     }
 

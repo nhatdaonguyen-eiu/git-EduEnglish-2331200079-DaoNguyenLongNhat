@@ -57,9 +57,9 @@ public class CourseServiceImpl implements CourseService {
     //  [R] READ ALL — GET /api/courses
     // ════════════════════════════════════════════════
     @Override
-    public List<CourseDTO> getAllCourses() {
-        // findByIsDeletedFalse() → SELECT * FROM courses WHERE is_deleted = false
-        return courseRepository.findByIsDeletedFalse()
+    public List<CourseDTO> getAllCourses(String search, String level, String category) {
+        // searchCourses() → SELECT * FROM courses WHERE is_deleted = false AND criteria...
+        return courseRepository.searchCourses(search, level, category)
                 .stream()
                 .map(this::toDTO)   // Chuyển từng Entity → DTO
                 .collect(Collectors.toList());

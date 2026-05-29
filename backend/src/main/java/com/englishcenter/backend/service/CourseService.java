@@ -31,8 +31,8 @@ import java.util.List;
  */
 public interface CourseService {
 
-    // [R] Lấy tất cả khóa học đang hoạt động (is_deleted = false)
-    List<CourseDTO> getAllCourses();
+    // [R] Lấy tất cả khóa học đang hoạt động (is_deleted = false) có lọc và tìm kiếm
+    List<CourseDTO> getAllCourses(String search, String level, String category);
 
     // [R] Lấy 1 khóa học theo ID → ném 404 nếu không tìm thấy
     CourseDTO getCourseById(Integer id);
