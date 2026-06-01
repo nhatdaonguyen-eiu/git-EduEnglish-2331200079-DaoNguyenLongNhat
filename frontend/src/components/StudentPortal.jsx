@@ -24,6 +24,11 @@ function StudentPortal() {
   const [teachers, setTeachers] = useState([]);
   const [teachersLoading, setTeachersLoading] = useState(true);
 
+  // Trạng thái Hệ thống Blog SEO
+  const [blogs, setBlogs] = useState([]);
+  const [blogsLoading, setBlogsLoading] = useState(true);
+  const [selectedBlog, setSelectedBlog] = useState(null);
+
   const fetchActiveTeachers = async () => {
     try {
       setTeachersLoading(true);
@@ -36,8 +41,21 @@ function StudentPortal() {
     }
   };
 
+  const fetchActiveBlogs = async () => {
+    try {
+      setBlogsLoading(true);
+      const res = await axios.get('http://localhost:8080/api/blogs');
+      setBlogs(res.data);
+    } catch (err) {
+      console.error("Lỗi lấy danh sách bài viết:", err);
+    } finally {
+      setBlogsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchActiveTeachers();
+    fetchActiveBlogs();
   }, []);
 
   const regFormRef = useRef(null);
@@ -400,6 +418,76 @@ function StudentPortal() {
         )}
       </section>
 
+      {/* 📰 CẨM NANG HỌC TIẾNG ANH (SEO BLOG GRID) */}
+      <section className="max-w-5xl mx-auto px-4 mt-24">
+        <div className="text-center mb-12">
+          <span className="text-xs font-bold text-orange-500 bg-orange-50 px-3 py-1 rounded-full uppercase tracking-wider">
+            Cẩm nang & Bí quyết học tốt
+          </span>
+          <h2 className="text-3xl font-black text-slate-800 mt-3">Kinh Nghiệm Học Tiếng Anh</h2>
+          <p className="text-slate-500 text-sm mt-2 max-w-lg mx-auto">
+            Khám phá các bài chia sẻ kinh nghiệm tự học IELTS, lộ trình ôn luyện thi TOEIC và mẹo giao tiếp tiếng Anh trôi chảy từ chuyên gia.
+          </p>
+        </div>
+
+        {blogsLoading ? (
+          <div className="py-12 flex flex-col items-center justify-center gap-3">
+            <div className="w-8 h-8 border-3 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-xs text-slate-400 font-semibold">Đang cập nhật các bài viết hay nhất...</p>
+          </div>
+        ) : blogs.length === 0 ? (
+          <div className="text-center py-10 bg-white rounded-2xl border border-slate-100 p-8 max-w-md mx-auto shadow-sm">
+            <p className="text-3xl">📰</p>
+            <h3 className="text-sm font-bold text-slate-700 mt-2">EduEnglish Handbook</h3>
+            <p className="text-xs text-slate-400 mt-1">Các bài viết chia sẻ tri thức bổ ích sẽ sớm được xuất bản.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {blogs.map((blog) => {
+              const defaultThumb = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400';
+              return (
+                <div 
+                  key={blog.id} 
+                  className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100/80 flex flex-col group h-full cursor-pointer text-left"
+                  onClick={() => setSelectedBlog(blog)}
+                >
+                  {/* Banner */}
+                  <div className="relative h-44 w-full overflow-hidden bg-slate-100">
+                    <img 
+                      src={blog.thumbnailUrl || defaultThumb} 
+                      alt={blog.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <span className="absolute top-3 left-3 px-3 py-1 text-[10px] font-black text-white bg-slate-900/60 rounded-full backdrop-blur-sm">
+                      📖 Cẩm nang
+                    </span>
+                  </div>
+
+                  {/* Body */}
+                  <div className="p-5 flex-grow flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-sm sm:text-base font-black text-slate-800 line-clamp-2 leading-snug group-hover:text-orange-500 transition-colors" title={blog.title}>
+                        {blog.title}
+                      </h3>
+                      <p className="text-slate-500 text-[11px] font-semibold mt-2 line-clamp-3 leading-relaxed">
+                        {blog.summary ? blog.summary.replace(/<[^>]*>/g, '') : ''}
+                      </p>
+                    </div>
+
+                    <div className="flex justify-between items-center mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-orange-500">
+                      <span>Đọc bài viết ➔</span>
+                      <span className="text-slate-400 font-medium">
+                        {new Date(blog.createdAt).toLocaleDateString('vi-VN')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
       {/* 4. BIỂU MẪU ĐĂNG KÝ TƯ VẤN / HỌC THỬ (DƯỚI TRANG) */}
       <section ref={regFormRef} className="max-w-2xl mx-auto px-4 mt-24">
         <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-lg border border-slate-100 relative overflow-hidden">
@@ -662,6 +750,134 @@ function StudentPortal() {
                 className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all shadow-md shadow-orange-500/10 hover:shadow-orange-500/20 text-xs cursor-pointer"
               >
                 📝 Đăng ký học ngay
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* 6. MODAL ĐỌC BÀI VIẾT BLOG SEO CHUẨN GOOGLE (HIGH-END ARTICLE READER) */}
+      {selectedBlog && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-3xl w-full border border-slate-100 animate-slide-up flex flex-col max-h-[94vh]">
+            
+            {/* Header / Banner ảnh bìa sắc nét */}
+            <div className="relative h-60 bg-slate-100 overflow-hidden shrink-0">
+              <img 
+                src={selectedBlog.thumbnailUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800'} 
+                alt={selectedBlog.title} 
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/35 to-transparent"></div>
+              
+              <button 
+                onClick={() => setSelectedBlog(null)}
+                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center font-bold transition-all cursor-pointer border-none shadow-md text-sm z-10"
+              >
+                ✕
+              </button>
+              
+              <div className="absolute bottom-5 left-6 right-6 text-left">
+                <span className="inline-block px-3 py-1 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow mb-2.5">
+                  📰 Cẩm Nang Tri Thức
+                </span>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight drop-shadow-md">
+                  {selectedBlog.title}
+                </h1>
+              </div>
+            </div>
+
+            {/* Nội dung bài viết SEO */}
+            <div className="p-6 sm:p-8 overflow-y-auto flex-grow space-y-6 text-left">
+              
+              {/* 🎯 Khung Trả Lời Nhanh Trực Diện (Summary Box - Featured Snippet Booster) */}
+              <div className="bg-orange-50/60 border border-orange-100/50 p-5 rounded-2xl relative overflow-hidden">
+                <div className="absolute -top-10 -right-10 w-24 h-24 bg-orange-500/5 rounded-full pointer-events-none"></div>
+                <h3 className="text-xs font-black text-orange-600 uppercase tracking-widest flex items-center gap-1.5">
+                  🎯 Tóm tắt câu trả lời nhanh
+                </h3>
+                <div 
+                  className="text-sm font-bold text-slate-700 mt-2 leading-relaxed prose prose-orange max-w-none text-left"
+                  dangerouslySetInnerHTML={{ __html: selectedBlog.summary }}
+                />
+              </div>
+
+              {/* 📖 Thân bài phân cấp H2/H3 */}
+              <div 
+                className="prose prose-slate max-w-none text-slate-600 text-sm leading-relaxed font-medium space-y-4 
+                  prose-headings:text-slate-800 prose-headings:font-black prose-headings:tracking-tight
+                  prose-h2:text-lg prose-h2:border-l-4 prose-h2:border-orange-500 prose-h2:pl-3 prose-h2:pt-2
+                  prose-h3:text-sm prose-h3:text-orange-600 prose-h3:font-extrabold"
+                dangerouslySetInnerHTML={{ __html: selectedBlog.content }}
+              />
+
+              {/* 🙋 FAQs Accordion (Featured Snippets FAQ Section) */}
+              {selectedBlog.faq && (() => {
+                try {
+                  const faqs = JSON.parse(selectedBlog.faq);
+                  if (faqs.length === 0) return null;
+                  return (
+                    <div className="border-t border-slate-100 pt-6 space-y-4">
+                      <h3 className="text-sm font-black text-slate-800 flex items-center gap-1.5">
+                        🙋 Có Thể Bạn Quan Tâm (FAQs)
+                      </h3>
+                      <div className="space-y-3">
+                        {faqs.map((faq, index) => (
+                          <div key={index} className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-2">
+                            <h4 className="text-xs font-black text-slate-800 flex items-start gap-1">
+                              <span className="text-orange-500 shrink-0">Q:</span>
+                              <span dangerouslySetInnerHTML={{ __html: faq.q }} />
+                            </h4>
+                            <div 
+                              className="text-xs text-slate-500 font-semibold leading-relaxed pl-4 border-l border-slate-200 prose prose-slate max-w-none text-left"
+                              dangerouslySetInnerHTML={{ __html: faq.a }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                } catch (e) {
+                  return null;
+                }
+              })()}
+
+              {/* 📣 Hộp Kêu Gọi Hành Động Mềm Mại (Soft CTA Box) */}
+              {selectedBlog.ctaText && (
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4 mt-8">
+                  <div className="text-left">
+                    <h4 className="text-xs font-black text-slate-800 font-bold">Muốn đạt mục tiêu đột phá?</h4>
+                    <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Chúng tôi hỗ trợ kiểm tra năng lực & lên lộ trình cá nhân hóa miễn phí.</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedBlog(null);
+                      // Scroll to target link
+                      const link = selectedBlog.ctaLink || '#register-section';
+                      if (link.startsWith('#')) {
+                        const target = document.getElementById(link.substring(1)) || regFormRef.current;
+                        target?.scrollIntoView({ behavior: 'smooth' });
+                      } else {
+                        window.open(link, '_blank');
+                      }
+                    }}
+                    className="w-full sm:w-auto px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-orange-500/10 hover:shadow-orange-500/20 cursor-pointer border-none flex items-center justify-center shrink-0"
+                  >
+                    🚀 {selectedBlog.ctaText}
+                  </button>
+                </div>
+              )}
+
+            </div>
+
+            {/* Footer popup */}
+            <div className="p-4 sm:px-6 bg-slate-50 border-t border-slate-100 flex gap-3 shrink-0">
+              <button 
+                onClick={() => setSelectedBlog(null)}
+                className="w-full py-3 bg-white hover:bg-slate-100 text-slate-600 font-bold rounded-xl transition-all text-xs border border-slate-200 cursor-pointer"
+              >
+                Đóng bài viết
               </button>
             </div>
 

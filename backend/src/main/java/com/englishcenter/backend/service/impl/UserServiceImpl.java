@@ -124,12 +124,20 @@ public class UserServiceImpl implements UserService {
             );
         }
 
-        // 2. Mã hóa mật khẩu
+        // 2. Kiểm tra độ dài mật khẩu tối thiểu 6 ký tự
+        if (user.getPassword() == null || user.getPassword().length() < 6) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Mật khẩu đăng ký phải có tối thiểu 6 ký tự"
+            );
+        }
+
+        // 3. Mã hóa mật khẩu
         user.setPassword(HashUtil.hashPassword(user.getPassword()));
         user.setRole("STUDENT"); // Đăng ký tự do mặc định luôn là STUDENT
         user.setIsDeleted(false);
 
-        // 3. Lưu lại
+        // 4. Lưu lại
         return userRepository.save(user);
     }
 
@@ -150,7 +158,15 @@ public class UserServiceImpl implements UserService {
             );
         }
 
-        // 2. Tạo đối tượng User mới
+        // 2. Kiểm tra độ dài mật khẩu giáo viên tối thiểu 6 ký tự
+        if (request.getPassword() == null || request.getPassword().length() < 6) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Mật khẩu giáo viên phải có tối thiểu 6 ký tự"
+            );
+        }
+
+        // 3. Tạo đối tượng User mới
         User teacher = new User();
         teacher.setUsername(request.getUsername());
         teacher.setPassword(HashUtil.hashPassword(request.getPassword()));
@@ -160,7 +176,7 @@ public class UserServiceImpl implements UserService {
         teacher.setRole("TEACHER");
         teacher.setIsDeleted(false);
 
-        // 3. Lưu lại
+        // 4. Lưu lại
         return userRepository.save(teacher);
     }
 
@@ -224,6 +240,12 @@ public class UserServiceImpl implements UserService {
 
         // Nếu có yêu cầu đổi mật khẩu mới
         if (request.getNewPassword() != null && !request.getNewPassword().trim().isEmpty()) {
+            if (request.getNewPassword().length() < 6) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Mật khẩu mới phải có tối thiểu 6 ký tự"
+                );
+            }
             user.setPassword(HashUtil.hashPassword(request.getNewPassword()));
         }
 

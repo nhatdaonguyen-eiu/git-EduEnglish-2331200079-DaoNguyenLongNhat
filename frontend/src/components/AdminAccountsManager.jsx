@@ -49,6 +49,11 @@ function AdminAccountsManager() {
       return;
     }
 
+    if (formData.password.length < 6) {
+      alert('⚠️ Mật khẩu của giáo viên phải có tối thiểu 6 ký tự!');
+      return;
+    }
+
     try {
       setSubmitting(true);
       await axios.post('http://localhost:8080/api/auth/create-teacher', formData);

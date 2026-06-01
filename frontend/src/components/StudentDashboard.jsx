@@ -887,13 +887,27 @@ function StudentDashboard({ user }) {
                                 </button>
                               )}
 
-                              {status === 'GRADED' && (
-                                <button
-                                  onClick={() => handleOpenResults(act, submission)}
-                                  className="px-4 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-black rounded-lg text-xs cursor-pointer border-none shadow transition-all active:scale-95"
-                                >
-                                  🔍 Xem kết quả
-                                </button>
+                              {status !== 'NOT_STARTED' && (
+                                <div className="flex gap-2">
+                                  {status === 'GRADED' && (
+                                    <button
+                                      onClick={() => handleOpenResults(act, submission)}
+                                      className="px-4 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-black rounded-lg text-xs cursor-pointer border-none shadow transition-all active:scale-95"
+                                    >
+                                      🔍 Xem kết quả
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => {
+                                      if (window.confirm('⚠️ Bạn có chắc chắn muốn làm lại bài tập này không? Kết quả bài làm trước sẽ bị ghi đè.')) {
+                                        handleOpenPractice(act);
+                                      }
+                                    }}
+                                    className="px-4 py-1.5 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-lg text-xs cursor-pointer border-none shadow transition-all active:scale-95"
+                                  >
+                                    🔄 Làm lại
+                                  </button>
+                                </div>
                               )}
                             </div>
                           </div>

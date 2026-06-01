@@ -67,6 +67,11 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
   // Lưu thay đổi hồ sơ
   const handleSave = async () => {
     // Validate mật khẩu mới nếu người dùng nhập
+    if (passwordData.newPassword && passwordData.newPassword.length < 6) {
+      alert('⚠️ Mật khẩu mới phải có tối thiểu 6 ký tự!');
+      return;
+    }
+
     if (passwordData.newPassword && passwordData.newPassword !== passwordData.confirmPassword) {
       alert('⚠️ Mật khẩu mới và xác nhận không khớp!');
       return;

@@ -11,6 +11,7 @@ import ClassroomManager from './components/ClassroomManager';
 import StudentDashboard from './components/StudentDashboard';
 import ProfilePage from './components/ProfilePage';
 import AdminAccountsManager from './components/AdminAccountsManager';
+import AdminBlogManager from './components/AdminBlogManager';
 
 function App() {
   // Quản lý trạng thái Đăng nhập hệ thống (localStorage)
@@ -377,6 +378,17 @@ function App() {
                   >
                     👨‍🏫 Quản Lý Giáo Viên
                   </button>
+
+                  <button 
+                    onClick={() => setAdminTab('blogs')}
+                    className={`pb-1 px-4 text-sm font-extrabold border-b-2 transition-all cursor-pointer ${
+                      adminTab === 'blogs'
+                        ? 'border-orange-500 text-orange-600'
+                        : 'border-transparent text-slate-400 hover:text-slate-600'
+                    }`}
+                  >
+                    ✍️ Quản Lý Blog SEO
+                  </button>
                 </div>
               </header>
 
@@ -496,6 +508,11 @@ function App() {
                 {adminTab === 'accounts' && (
                   // TAB 4: QUẢN LÝ GIÁO VIÊN
                   <AdminAccountsManager />
+                )}
+
+                {adminTab === 'blogs' && (
+                  // TAB 5: QUẢN LÝ BLOG SEO
+                  <AdminBlogManager />
                 )}
               </div>
             </div>

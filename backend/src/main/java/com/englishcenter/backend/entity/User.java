@@ -26,8 +26,8 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    // Mật khẩu đã mã hóa bảo mật
-    @JsonIgnore
+    // Mật khẩu đã mã hóa bảo mật (chỉ cho phép nhận khi submit, không bao giờ trả về JSON)
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = false)
     private String password;
 

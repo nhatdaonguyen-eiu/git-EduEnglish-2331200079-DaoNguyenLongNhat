@@ -45,10 +45,15 @@ function AuthPortal({ onLoginSuccess, onClose }) {
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
     setSuccessMsg('');
 
+    if (!registerForm.password || registerForm.password.length < 6) {
+      setError('⚠️ Mật khẩu đăng ký phải có tối thiểu 6 ký tự.');
+      return;
+    }
+
+    setLoading(true);
     try {
       await axios.post('http://localhost:8080/api/auth/register', registerForm);
       setSuccessMsg('🎉 Đăng ký tài khoản học viên thành công! Bạn có thể đăng nhập ngay bây giờ.');
