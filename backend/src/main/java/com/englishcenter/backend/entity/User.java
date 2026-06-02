@@ -66,6 +66,16 @@ public class User {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    // === GAMIFICATION FIELDS ===
+    @Column(name = "current_streak", nullable = false)
+    private Integer currentStreak = 0;
+
+    @Column(name = "longest_streak", nullable = false)
+    private Integer longestStreak = 0;
+
+    @Column(name = "last_active_date")
+    private java.time.LocalDate lastActiveDate;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

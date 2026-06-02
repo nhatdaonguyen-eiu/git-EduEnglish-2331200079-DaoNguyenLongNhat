@@ -186,6 +186,8 @@ public class ClassroomServiceImpl implements ClassroomService {
         dto.setCourseId(classroom.getCourseId());
         dto.setTeacherId(classroom.getTeacherId());
         dto.setSchedule(classroom.getSchedule());
+        dto.setSemester(classroom.getSemester());
+        dto.setTuitionFee(classroom.getTuitionFee());
         dto.setCreatedAt(classroom.getCreatedAt());
 
         // Tìm kiếm và mapping tên Khóa học

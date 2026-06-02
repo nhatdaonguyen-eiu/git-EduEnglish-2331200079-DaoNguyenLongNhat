@@ -40,6 +40,12 @@ public class Classroom {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @Column(name = "semester")
+    private String semester;
+
+    @Column(name = "tuition_fee")
+    private java.math.BigDecimal tuitionFee;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

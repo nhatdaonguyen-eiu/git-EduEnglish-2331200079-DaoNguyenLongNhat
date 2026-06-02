@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hóa Đơn Học Phí - EduEnglish</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 40px; }
+        .invoice-card { max-width: 650px; margin: 0 auto; background-color: #ffffff; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); overflow: hidden; }
+        .header-banner { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .logo-title { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+        .logo-orange { color: #f97316; }
+        .invoice-label { font-size: 11px; text-transform: uppercase; font-weight: bold; background-color: rgba(249, 115, 22, 0.15); color: #f97316; padding: 4px 10px; border-radius: 8px; }
+        .invoice-body { padding: 40px; }
+        .title-row { display: flex; justify-content: space-between; border-b: 1px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 25px; }
+        .title-row h1 { font-size: 24px; font-weight: 900; margin: 0; color: #0f172a; }
+        .meta-info { text-align: right; font-size: 12px; color: #64748b; line-height: 1.6; }
+        .section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; color: #f97316; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .info-block { background-color: #f8fafc; border: 1px solid #f1f5f9; padding: 15px; border-radius: 16px; font-size: 12px; line-height: 1.6; }
+        .info-block strong { color: #0f172a; }
+        .table-bill { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .table-bill th { background-color: #f1f5f9; text-align: left; padding: 12px 16px; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #475569; }
+        .table-bill td { padding: 16px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+        .table-bill .fee-cell { text-align: right; font-weight: bold; color: #0f172a; }
+        .summary-block { display: flex; justify-content: flex-end; align-items: center; gap: 15px; padding-top: 10px; }
+        .summary-title { font-size: 13px; font-weight: bold; color: #475569; }
+        .summary-value { font-size: 20px; font-weight: 900; color: #f97316; }
+        .paid-stamp { display: inline-block; border: 3px double #10b981; color: #10b981; font-weight: 900; font-size: 14px; text-transform: uppercase; padding: 5px 15px; border-radius: 8px; transform: rotate(-8deg); opacity: 0.85; margin-left: 20px; }
+        .footer { background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px; text-align: center; font-size: 11px; color: #64748b; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="invoice-card">
+        <div class="header-banner">
+            <div class="logo-title">Edu<span class="logo-orange">English</span></div>
+            <div class="invoice-label">Hóa đơn đóng học phí</div>
+        </div>
+        
+        <div class="invoice-body">
+            <div class="title-row">
+                <h1>HÓA ĐƠN ĐIỆN TỬ</h1>
+                <div class="meta-info">
+                    Mã hóa đơn: <b>#INV-PAY2</b><br/>
+                    Ngày lập: 02/06/2026 13:20:10
+                </div>
+            </div>
+            
+            <div class="grid-info">
+                <div>
+                    <div class="section-title">Học viên thanh toán</div>
+                    <div class="info-block">
+                        Họ tên: <b>Bạch Gia Huy</b><br/>
+                        Email: huydeptrai@gmail.com<br/>
+                        Số điện thoại: 
+                    </div>
+                </div>
+                <div>
+                    <div class="section-title">Phương thức thanh toán</div>
+                    <div class="info-block">
+                        Hình thức: <b>BANK_TRANSFER</b><br/>
+                        Mã đơn hàng: EDU1780380712672_3_1<br/>
+                        Trạng thái: <span style="color:#10b981;font-weight:bold;">ĐÃ THANH TOÁN (PAID)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-title">Chi tiết học phí khóa học</div>
+            <table class="table-bill">
+                <thead>
+                    <tr>
+                        <th>Lớp học & Khóa học</th>
+                        <th>Học kỳ</th>
+                        <th style="text-align: right;">Học phí</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <b>Lớp: Lớp học cho người mất gốc</b><br/>
+                            <span style="color: #64748b; font-size:11px;">Khóa học: IELTS 8.0 Masterclass</span>
+                        </td>
+                        <td>N/A</td>
+                        <td class="fee-cell">5,000,000 VNĐ</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="summary-block">
+                <div class="summary-title">Tổng cộng tiền học phí:</div>
+                <div class="summary-value">5,000,000 VNĐ</div>
+                <div class="paid-stamp">ĐÃ THANH TOÁN</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            Cảm ơn bạn đã lựa chọn tin tưởng trung tâm Anh ngữ <b>EduEnglish</b>!<br/>
+            <i>Hóa đơn điện tử này được tạo tự động và có giá trị pháp lý tương đương biên lai giấy.</i>
+        </div>
+    </div>
+</body>
+</html>

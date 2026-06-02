@@ -82,6 +82,19 @@ function StudentDashboard({ user }) {
   const [loading, setLoading] = useState(true);
   const [activeCourses, setActiveCourses] = useState([]);
 
+  // --- NEW TUITION PORTAL STATES ---
+  const [studentPayments, setStudentPayments] = useState([]);
+  const [selectedPaymentMethods, setSelectedPaymentMethods] = useState({});
+  const [showBankTransferInfo, setShowBankTransferInfo] = useState({});
+  const [paymentConfigs, setPaymentConfigs] = useState([]);
+
+  // --- GAMIFICATION STATES ---
+  const [classroomProgress, setClassroomProgress] = useState({});
+  const [gamificationProfile, setGamificationProfile] = useState(null);
+  const [leaderboards, setLeaderboards] = useState({});
+  const [activeLeaderboardClassId, setActiveLeaderboardClassId] = useState('');
+  const [checkingIn, setCheckingIn] = useState(false);
+
   // Existing Placement Test States
   const [testMode, setTestMode] = useState(false);
   const [currentQIndex, setCurrentQIndex] = useState(0);
@@ -131,20 +144,142 @@ function StudentDashboard({ user }) {
               classId: cls.id,
               className: cls.className,
               courseTitle: cls.courseTitle,
-              grade: studentEnrollment ? studentEnrollment.grade : null
+              grade: studentEnrollment ? studentEnrollment.grade : null,
+              enrollmentId: studentEnrollment ? studentEnrollment.id : null,
+              tuitionFee: cls.tuitionFee || 0,
+              semester: cls.semester || 'N/A'
             };
           })
       );
       const gradesData = await Promise.all(gradePromises);
       setGrades(gradesData);
 
+      const paymentsRes = await axios.get(`http://localhost:8080/api/payments/student/${user.id}`);
+      setStudentPayments(paymentsRes.data);
+
+      const configsRes = await axios.get('http://localhost:8080/api/payment-configs');
+      setPaymentConfigs(configsRes.data);
+
       const coursesRes = await axios.get('http://localhost:8080/api/courses');
       setActiveCourses(coursesRes.data);
+
+      // --- GAMIFICATION INTEGRATION ---
+      // Fetch progress for each classroom
+      const progressMap = {};
+      try {
+        const progressPromises = classRes.data.map(cls =>
+          axios.get(`http://localhost:8080/api/gamification/student/${user.id}/classroom/${cls.id}/progress`)
+            .then(res => {
+              progressMap[cls.id] = res.data;
+            })
+            .catch(e => console.error("Lỗi lấy progress của lớp " + cls.id, e))
+        );
+        await Promise.all(progressPromises);
+        setClassroomProgress(progressMap);
+      } catch (err) {
+        console.error("Lỗi lấy tiến trình học tập:", err);
+      }
+
+      // Fetch Gamification Profile
+      try {
+        const gamificationRes = await axios.get(`http://localhost:8080/api/gamification/student/${user.id}`);
+        setGamificationProfile(gamificationRes.data);
+      } catch (err) {
+        console.error("Lỗi lấy hồ sơ Gamification:", err);
+      }
+
+      // Fetch Leaderboard for first class
+      if (classRes.data.length > 0) {
+        const firstClassId = classRes.data[0].id;
+        setActiveLeaderboardClassId(firstClassId);
+        try {
+          const lbRes = await axios.get(`http://localhost:8080/api/gamification/classroom/${firstClassId}/leaderboard`);
+          setLeaderboards({ [firstClassId]: lbRes.data });
+        } catch (err) {
+          console.error("Lỗi lấy bảng xếp hạng:", err);
+        }
+      }
     } catch (err) {
       console.error("Lỗi lấy thông tin học tập:", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchLeaderboard = async (classId) => {
+    if (!classId) return;
+    try {
+      const res = await axios.get(`http://localhost:8080/api/gamification/classroom/${classId}/leaderboard`);
+      setLeaderboards(prev => ({ ...prev, [classId]: res.data }));
+    } catch (err) {
+      console.error("Lỗi lấy bảng xếp hạng:", err);
+    }
+  };
+
+  const handleCheckin = async () => {
+    try {
+      setCheckingIn(true);
+      const res = await axios.post(`http://localhost:8080/api/gamification/student/${user.id}/check-in`);
+      setGamificationProfile(res.data);
+      alert("🎉 Điểm danh thành công! Chuỗi ngày học của bạn đã được cập nhật.");
+      
+      // Cập nhật bảng xếp hạng
+      if (activeLeaderboardClassId) {
+        fetchLeaderboard(activeLeaderboardClassId);
+      }
+    } catch (err) {
+      console.error("Lỗi điểm danh:", err);
+      alert("❌ Điểm danh thất bại hoặc bạn đã điểm danh hôm nay.");
+    } finally {
+      setCheckingIn(false);
+    }
+  };
+
+  const handlePayTuition = async (enrollmentId, amount, method) => {
+    try {
+      setLoading(true);
+      const res = await axios.post('http://localhost:8080/api/payments/create', {
+        enrollmentId,
+        amount,
+        method,
+        note: `Thanh toán học phí online cổng ${method}`
+      });
+      
+      // Refresh payments list
+      const paymentsRes = await axios.get(`http://localhost:8080/api/payments/student/${user.id}`);
+      setStudentPayments(paymentsRes.data);
+      
+      if (res.data.paymentUrl) {
+        window.location.href = res.data.paymentUrl;
+      } else if (method === 'BANK_TRANSFER') {
+        setShowBankTransferInfo(prev => ({ ...prev, [enrollmentId]: res.data }));
+      }
+    } catch (err) {
+      console.error("Lỗi khởi tạo thanh toán học phí:", err);
+      alert("❌ Có lỗi xảy ra khi tạo giao dịch thanh toán.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatVND = (value) => {
+    if (!value) return '0 đ';
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+  };
+
+  const getBankQRCode = (bankPayment) => {
+    if (!bankPayment) return '';
+    const activeConfig = paymentConfigs.find(c => c.gatewayKey === 'BANK_TRANSFER') || {};
+    if (activeConfig.qrUrl) {
+      return activeConfig.qrUrl; // Option A: Static uploaded QR template image
+    }
+    // Dynamic QR generation
+    const bankName = activeConfig.gatewayName || 'Techcombank';
+    const acctNum = activeConfig.accountNumber || '1903456789012';
+    const text = encodeURIComponent(
+      `BANK: ${bankName} - ACCT: ${acctNum} - AMOUNT: ${bankPayment.amount} - SYNTAX: ${bankPayment.transferSyntax}`
+    );
+    return `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${text}`;
   };
 
   // --- NEW LMS FUNCTIONS ---
@@ -942,6 +1077,7 @@ function StudentDashboard({ user }) {
           </div>
 
           {!testMode ? (
+            <>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               
               {/* CỘT LỚP HỌC & LỊCH HỌC (CHIẾM 2 PHẦN) */}
@@ -966,7 +1102,7 @@ function StudentDashboard({ user }) {
                     <div className="flex flex-col gap-4">
                       {classrooms.map(cls => (
                         <div key={cls.id} className="p-4 bg-slate-50/50 rounded-xl border border-slate-150 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div>
+                          <div className="flex-1">
                             <p className="font-extrabold text-sm text-slate-800">{cls.className}</p>
                             <span className="inline-block text-[9px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded mt-1">
                               {cls.courseTitle}
@@ -974,6 +1110,24 @@ function StudentDashboard({ user }) {
                             <p className="text-[10px] text-slate-400 font-bold mt-2">
                               👨‍🏫 Giáo viên dạy: <strong className="text-slate-600">{cls.teacherName}</strong>
                             </p>
+
+                            {/* Thanh tiến trình học tập */}
+                            {classroomProgress[cls.id] && (
+                              <div className="mt-3.5 max-w-sm text-left">
+                                <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 mb-1">
+                                  <span>Tiến độ học tập:</span>
+                                  <span className="text-orange-655 font-black">
+                                    {classroomProgress[cls.id].completedActivities}/{classroomProgress[cls.id].totalActivities} bài làm ({classroomProgress[cls.id].progressPercentage}%)
+                                  </span>
+                                </div>
+                                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden shadow-inner border border-slate-200/40">
+                                  <div 
+                                    className="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full transition-all duration-500"
+                                    style={{ width: `${classroomProgress[cls.id].progressPercentage}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                           
                           <div className="sm:text-right flex sm:flex-col items-end gap-2.5">
@@ -989,6 +1143,188 @@ function StudentDashboard({ user }) {
                           </div>
                         </div>
                       ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* THANH TOÁN HỌC PHÍ & HÓA ĐƠN */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm animate-fade-in">
+                  <h3 className="text-base font-black text-slate-800 border-b border-slate-100 pb-3 mb-4 flex items-center gap-1.5">
+                    💳 Học Phí & Hóa Đơn Lớp Học
+                  </h3>
+
+                  {loading ? (
+                    <div className="py-10 text-center text-slate-400 text-xs font-semibold">Đang nạp tình trạng học phí...</div>
+                  ) : grades.length === 0 ? (
+                    <p className="py-10 text-center text-slate-400 text-xs font-semibold">Bạn chưa có lớp học nào cần nộp học phí.</p>
+                  ) : (
+                    <div className="flex flex-col gap-5">
+                      {grades.map(g => {
+                        const payment = studentPayments.find(p => p.enrollmentId === g.enrollmentId);
+                        const isPaid = payment?.status === 'PAID';
+                        const isPendingApproval = payment?.status === 'PENDING_APPROVAL';
+                        const isPending = payment?.status === 'PENDING';
+                        const activeGateways = paymentConfigs.filter(cfg => cfg.isActive);
+                        const defaultMethod = activeGateways.length > 0 ? activeGateways[0].gatewayKey : 'VNPAY';
+                        const selectedMethod = selectedPaymentMethods[g.enrollmentId] || defaultMethod;
+                        const bankInfo = showBankTransferInfo[g.enrollmentId] !== false && (showBankTransferInfo[g.enrollmentId] || (payment?.method === 'BANK_TRANSFER' ? payment : null));
+
+                        return (
+                          <div key={g.classId} className="p-4 bg-slate-50/55 rounded-2xl border border-slate-150 flex flex-col gap-4">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-extrabold text-xs text-slate-800">Lớp: {g.className} ({g.semester})</p>
+                                <p className="text-[10px] text-slate-400 font-semibold">{g.courseTitle}</p>
+                              </div>
+                              <span className={`px-2.5 py-0.5 rounded text-[9px] font-black border uppercase ${
+                                isPaid 
+                                  ? 'bg-green-50 text-green-700 border-green-200' 
+                                  : isPendingApproval
+                                    ? 'bg-amber-50 text-amber-600 border-amber-200 animate-pulse'
+                                    : isPending
+                                      ? 'bg-orange-50 text-orange-600 border-orange-200'
+                                      : 'bg-red-50 text-red-600 border-red-200'
+                              }`}>
+                                {isPaid ? 'Đã đóng' : isPendingApproval ? 'Chờ duyệt ⏳' : isPending ? 'Chờ thanh toán' : 'Chưa nộp'}
+                              </span>
+                            </div>
+
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="text-slate-500 font-bold">Mức học phí lớp:</span>
+                              <span className="font-black text-orange-600">{formatVND(g.tuitionFee)}</span>
+                            </div>
+
+                            {/* Actions or instructions */}
+                            {isPaid ? (
+                              <div className="flex justify-between items-center gap-3 mt-1 border-t border-slate-100 pt-3">
+                                <span className="text-[10px] text-slate-400 font-semibold italic">Đã nộp vào {payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString('vi-VN') : 'gần đây'} qua {payment.method}</span>
+                                <a 
+                                  href={`http://localhost:8080${payment.invoiceUrl}`}
+                                  target="_blank" 
+                                  rel="noreferrer"
+                                  className="px-3.5 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-200 rounded-lg text-[10px] font-black transition-all"
+                                >
+                                  📄 Xem Hóa Đơn
+                                </a>
+                              </div>
+                            ) : isPendingApproval ? (
+                              <div className="p-3.5 bg-amber-50/40 border border-amber-200 rounded-xl flex flex-col gap-2">
+                                <p className="text-[11px] text-slate-755 font-semibold text-left">
+                                  ⏳ <strong>Đang chờ phê duyệt:</strong> Giao dịch qua {payment.method} đang chờ duyệt. Mã đơn: <code>{payment.orderId}</code>.
+                                </p>
+                                <p className="text-[9px] text-slate-400 font-semibold italic text-left">
+                                  * Ghi chú: Manager đang đối chiếu với ngân hàng. Hóa đơn sẽ xuất hiện tại đây sau khi được duyệt.
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col gap-3 mt-1 border-t border-slate-100 pt-3">
+                                {/* Option to choose payment gateway if not transfer instructions */}
+                                {!bankInfo && (
+                                  <div className="flex items-center gap-3">
+                                    <select
+                                      value={selectedMethod}
+                                      onChange={(e) => setSelectedPaymentMethods(prev => ({ ...prev, [g.enrollmentId]: e.target.value }))}
+                                      className="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-none text-[11px] text-slate-700 bg-white font-bold cursor-pointer"
+                                    >
+                                      {paymentConfigs.length > 0 ? (
+                                        paymentConfigs.filter(cfg => cfg.isActive).map(cfg => (
+                                          <option key={cfg.gatewayKey} value={cfg.gatewayKey}>
+                                            {cfg.gatewayName} {cfg.gatewayKey !== 'BANK_TRANSFER' ? '(Giả lập QR)' : ''}
+                                          </option>
+                                        ))
+                                      ) : (
+                                        <>
+                                          <option value="VNPAY">VNPay (Giả lập QR)</option>
+                                          <option value="MOMO">Ví MoMo (Giả lập QR)</option>
+                                          <option value="ZALOPAY">ZaloPay (Giả lập QR)</option>
+                                          <option value="BANK_TRANSFER">Chuyển khoản Ngân hàng (Techcombank)</option>
+                                        </>
+                                      )}
+                                    </select>
+                                    
+                                    <button
+                                      onClick={() => handlePayTuition(g.enrollmentId, g.tuitionFee, selectedMethod)}
+                                      className="px-4 py-1.5 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-lg text-[11px] shadow transition-all cursor-pointer border-none"
+                                    >
+                                      Nộp Học Phí 💳
+                                    </button>
+                                  </div>
+                                )}
+
+                                {/* If choosing bank transfer and initialized */}
+                                {bankInfo && (
+                                  <div className="p-4 bg-blue-50/40 border border-blue-200 rounded-2xl flex flex-col gap-3">
+                                    <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold border-b border-blue-100 pb-2">
+                                      <span>🏦 THÔNG TIN CHUYỂN KHOẢN CÔNG TY</span>
+                                      <button 
+                                        type="button"
+                                        onClick={() => {
+                                          setShowBankTransferInfo(prev => ({ ...prev, [g.enrollmentId]: false }));
+                                        }}
+                                        className="text-red-500 hover:text-red-700 font-extrabold bg-none border-none cursor-pointer text-xs"
+                                      >
+                                        Đóng
+                                      </button>
+                                    </div>
+                                    
+                                    <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                                      {/* Left side: Text Details */}
+                                      <div className="flex-1 text-[11px] text-slate-700 flex flex-col gap-1.5 text-left w-full">
+                                        {(() => {
+                                          const bankCfg = paymentConfigs.find(c => c.gatewayKey === 'BANK_TRANSFER') || {
+                                            gatewayName: 'Techcombank',
+                                            accountNumber: '1903456789012',
+                                            accountName: 'EduEnglish Center'
+                                          };
+                                          return (
+                                            <>
+                                              <p>Ngân hàng: <strong>{bankCfg.gatewayName}</strong></p>
+                                              <p>Số tài khoản: <strong>{bankCfg.accountNumber}</strong></p>
+                                              <p>Chủ tài khoản: <strong>{bankCfg.accountName}</strong></p>
+                                            </>
+                                          );
+                                        })()}
+                                        <p>Số tiền: <strong className="text-orange-600">{formatVND(bankInfo.amount)}</strong></p>
+                                        
+                                        <div className="mt-1 flex flex-col gap-1">
+                                          <span className="text-[9px] text-slate-450 uppercase font-black tracking-wider">Cú Pháp Chuyển Khoản:</span>
+                                          <div className="bg-white border border-blue-150 rounded px-2.5 py-1.5 flex items-center justify-between font-black text-xs text-orange-600">
+                                            <span>{bankInfo.transferSyntax}</span>
+                                            <button 
+                                              type="button"
+                                              onClick={() => {
+                                                navigator.clipboard.writeText(bankInfo.transferSyntax);
+                                                alert('Đã sao chép cú pháp chuyển khoản!');
+                                              }}
+                                              className="text-[9px] text-blue-500 border border-blue-200 px-1.5 py-0.5 rounded hover:bg-slate-50 cursor-pointer"
+                                            >
+                                              Sao chép
+                                            </button>
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {/* Right side: QR Code */}
+                                      <div className="w-32 h-32 flex flex-col items-center justify-center p-1.5 bg-white border border-slate-200 rounded-xl shadow-sm">
+                                        <img 
+                                          src={getBankQRCode(bankInfo)} 
+                                          alt="Mã QR Chuyển khoản" 
+                                          className="w-full h-full object-contain rounded-lg"
+                                        />
+                                      </div>
+                                    </div>
+                                    
+                                    <p className="text-[9px] text-slate-450 font-semibold italic mt-1 leading-relaxed text-left border-t border-blue-100/50 pt-2">
+                                      * Lưu ý: Hãy chuyển khoản đúng thông tin và cú pháp. Manager sẽ xác minh giao dịch này thủ công trong tài khoản ngân hàng của trung tâm.
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -1057,6 +1393,183 @@ function StudentDashboard({ user }) {
               </div>
 
             </div>
+
+            {/* 🏆 ĐẤU TRƯỜNG GAMIFICATION & THÀNH TÍCH */}
+            {gamificationProfile && (
+              <div className="mt-8 bg-white p-6 sm:p-8 rounded-3xl border border-slate-150 shadow-sm animate-fade-in text-left">
+                <div className="border-b border-slate-100 pb-4 mb-6">
+                  <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                    🏆 Đấu Trường Gamification & Thành Tích Học Tập
+                  </h3>
+                  <p className="text-xs text-slate-400 font-semibold mt-0.5 uppercase tracking-wider">
+                    Gamification Learning Arena
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* 1. Chuỗi học tập (Streak) */}
+                  <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-150 flex flex-col items-center justify-between text-center relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500/5 rounded-full blur-lg"></div>
+                    
+                    <div className="w-full text-left mb-4">
+                      <span className="px-2.5 py-0.5 rounded bg-orange-50 border border-orange-100 text-orange-500 text-[10px] font-black uppercase">
+                        Chuỗi học tập
+                      </span>
+                    </div>
+
+                    <div className="my-2 flex flex-col items-center">
+                      <div className="text-6xl mb-2 animate-bounce">🔥</div>
+                      <span className="text-4xl font-black text-slate-800">
+                        {gamificationProfile.currentStreak} Ngày
+                      </span>
+                      <p className="text-xs text-slate-500 font-bold mt-1">Chuỗi học tập hiện tại</p>
+                    </div>
+
+                    <div className="w-full bg-white border border-slate-200/80 rounded-xl p-3 my-4 flex justify-between items-center text-xs font-semibold">
+                      <span className="text-slate-400">Kỷ lục dài nhất:</span>
+                      <span className="text-orange-600 font-black">{gamificationProfile.longestStreak} ngày ⚡</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleCheckin}
+                      disabled={checkingIn}
+                      className="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-black rounded-xl shadow-md shadow-orange-500/10 active:scale-[0.98] transition-all cursor-pointer border-none text-xs disabled:opacity-50"
+                    >
+                      {checkingIn ? "⏳ Đang điểm danh..." : "📅 Điểm Danh Hôm Nay"}
+                    </button>
+                  </div>
+
+                  {/* 2. Huy hiệu thành tích (Badges) */}
+                  <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-150 flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-center mb-4 border-b border-slate-200/40 pb-2">
+                        <span className="px-2.5 py-0.5 rounded bg-orange-50 border border-orange-100 text-orange-500 text-[10px] font-black uppercase">
+                          Huy hiệu đã đạt
+                        </span>
+                        <span className="text-[10px] font-black text-slate-500">
+                          {gamificationProfile.badges.filter(b => b.earned).length}/{gamificationProfile.badges.length}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-4 gap-3.5 my-2">
+                        {gamificationProfile.badges.map(b => (
+                          <div 
+                            key={b.badgeKey} 
+                            title={`${b.title}: ${b.description} ${b.earned ? `(Đạt lúc ${new Date(b.earnedAt).toLocaleDateString('vi-VN')})` : '(Chưa đạt)'}`}
+                            className={`flex flex-col items-center group relative cursor-help p-1.5 rounded-xl transition-all ${
+                              b.earned 
+                                ? 'bg-white border border-amber-200 shadow-sm scale-100' 
+                                : 'bg-slate-100/40 border border-transparent opacity-40 grayscale scale-95'
+                            }`}
+                          >
+                            <span className={`text-2xl ${b.earned ? 'drop-shadow' : ''}`}>{b.icon}</span>
+                            <span className="text-[7.5px] font-bold text-slate-500 mt-1 truncate max-w-full text-center">
+                              {b.title}
+                            </span>
+                            
+                            {/* Tooltip */}
+                            <div className="absolute bottom-full mb-2 hidden group-hover:block w-40 p-2 bg-slate-900 text-white text-[9px] font-bold rounded-lg shadow-xl z-20 leading-relaxed text-center">
+                              <p className="text-amber-400">{b.title}</p>
+                              <p className="mt-0.5 text-slate-300 font-medium">{b.description}</p>
+                              {b.earned && (
+                                <p className="mt-1 text-green-400 text-[8px]">✓ Đạt ngày: {new Date(b.earnedAt).toLocaleDateString('vi-VN')}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <p className="text-[9px] text-slate-400 font-semibold italic text-center mt-4">
+                      * Mẹo: Nộp đầy đủ bài tập và đạt điểm cao để nhanh chóng mở khóa toàn bộ huy hiệu!
+                    </p>
+                  </div>
+
+                  {/* 3. Bảng xếp hạng (Leaderboard) */}
+                  <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-150 flex flex-col justify-between">
+                    <div className="w-full">
+                      <div className="flex justify-between items-center mb-4 border-b border-slate-200/40 pb-2 gap-2">
+                        <span className="px-2.5 py-0.5 rounded bg-orange-50 border border-orange-100 text-orange-500 text-[10px] font-black uppercase">
+                          Bảng xếp hạng lớp
+                        </span>
+                        
+                        {classrooms.length > 1 && (
+                          <select
+                            value={activeLeaderboardClassId}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setActiveLeaderboardClassId(val);
+                              fetchLeaderboard(val);
+                            }}
+                            className="px-2 py-0.5 rounded border border-slate-200 focus:outline-none text-[9px] text-slate-600 bg-white font-bold cursor-pointer max-w-[120px]"
+                          >
+                            {classrooms.map(c => (
+                              <option key={c.id} value={c.id}>{c.className}</option>
+                            ))}
+                          </select>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col gap-2 max-h-[190px] overflow-y-auto pr-1">
+                        {leaderboards[activeLeaderboardClassId] && leaderboards[activeLeaderboardClassId].length > 0 ? (
+                          leaderboards[activeLeaderboardClassId].map(item => {
+                            const isCurrent = item.studentId === user.id;
+                            const isTop1 = item.rank === 1;
+                            const isTop2 = item.rank === 2;
+                            const isTop3 = item.rank === 3;
+                            
+                            return (
+                              <div 
+                                key={item.studentId}
+                                className={`flex items-center justify-between p-2 rounded-xl border transition-all ${
+                                  isCurrent 
+                                    ? 'bg-orange-50/30 border-orange-300 shadow-sm' 
+                                    : 'bg-white border-slate-200/60'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${
+                                    isTop1 ? 'bg-amber-100 text-amber-700' :
+                                    isTop2 ? 'bg-slate-200 text-slate-700' :
+                                    isTop3 ? 'bg-orange-100 text-orange-850' : 'bg-slate-100 text-slate-500'
+                                  }`}>
+                                    {isTop1 ? '🥇' : isTop2 ? '🥈' : isTop3 ? '🥉' : item.rank}
+                                  </span>
+                                  
+                                  <div className="text-left">
+                                    <p className={`text-[10px] font-bold ${isCurrent ? 'text-orange-700' : 'text-slate-750'}`}>
+                                      {item.studentName} {isCurrent && " (Bạn)"}
+                                    </p>
+                                    <p className="text-[8px] text-slate-400 font-semibold">
+                                      Nộp: {item.completedCount} bài làm
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div className="text-right">
+                                  <span className="text-[10px] font-black text-orange-600 block">
+                                    {item.totalPoints}đ
+                                  </span>
+                                  <span className="text-[8px] text-slate-400 block font-semibold">
+                                    TB: {item.averageScore}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <p className="text-slate-400 text-xs text-center py-8 font-semibold">
+                            Chưa có dữ liệu thi đua trong lớp này.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            </>
           ) : (
             // GIAO DIỆN BÀI THI PLACEMENT TEST ĐANG DIỄN RA
             <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden animate-slide-up">

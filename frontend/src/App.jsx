@@ -12,6 +12,9 @@ import StudentDashboard from './components/StudentDashboard';
 import ProfilePage from './components/ProfilePage';
 import AdminAccountsManager from './components/AdminAccountsManager';
 import AdminBlogManager from './components/AdminBlogManager';
+import FreeMaterialsPortal from './components/FreeMaterialsPortal';
+import TuitionPaymentPortal from './components/TuitionPaymentPortal';
+import Chatbot from './components/Chatbot';
 
 function App() {
   // Quản lý trạng thái Đăng nhập hệ thống (localStorage)
@@ -19,6 +22,15 @@ function App() {
     const saved = localStorage.getItem('user');
     return saved ? JSON.parse(saved) : null;
   });
+
+  // Tự động điều phối vào cổng thanh toán nếu URL có tham số đơn hàng
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('orderId')) {
+      setPortalMode('tuition-payment-checkout');
+      setShowProfile(false);
+    }
+  }, []);
 
   // Trạng thái hiển thị Modal Đăng nhập/Đăng ký
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -219,6 +231,17 @@ function App() {
           >
             🎓 Trang Chủ Học Viên
           </button>
+
+          <button 
+            onClick={() => { setPortalMode('free-materials'); setShowProfile(false); }}
+            className={`px-5 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
+              portalMode === 'free-materials' && !showProfile
+                ? 'bg-white text-orange-600 shadow-md shadow-slate-200/50'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            📚 Tài Liệu Miễn Phí
+          </button>
           
           {/* Nút Dashboard chỉ hiển thị khi đã đăng nhập */}
           {currentUser && (
@@ -307,6 +330,18 @@ function App() {
       ) : portalMode === 'student' ? (
         // GIAO DIỆN TRANG CHỦ PUBLIC LANDING PAGE CHO HỌC VIÊN
         <StudentPortal />
+      ) : portalMode === 'free-materials' ? (
+        // GIAO DIỆN CỔNG TÀI LIỆU HỌC TẬP MIỄN PHÍ
+        <FreeMaterialsPortal currentUser={currentUser} />
+      ) : portalMode === 'tuition-payment-checkout' ? (
+        // GIAO DIỆN CỔNG THANH TOÁN HỌC PHÍ ONLINE
+        <TuitionPaymentPortal 
+          currentUser={currentUser} 
+          onBackToDashboard={() => {
+            window.history.pushState({}, document.title, window.location.pathname);
+            setPortalMode('dashboard');
+          }}
+        />
       ) : (
         // GIAO DIỆN DASHBOARD CỦA TỪNG VAI TRÒ (ĐÃ ĐĂNG NHẬP)
         <div className="pb-20">
@@ -528,6 +563,9 @@ function App() {
           onClose={() => setShowAuthModal(false)}
         />
       )}
+
+      {/* CHATBOT TƯ VẤN TỰ ĐỘNG 24/7 */}
+      <Chatbot />
 
     </div>
   );

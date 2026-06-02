@@ -20,4 +20,10 @@ public interface ClassroomRepository extends JpaRepository<Classroom, Integer> {
 
     // Lọc lớp học của riêng giáo viên phụ trách
     List<Classroom> findByTeacherIdAndIsDeletedFalse(Integer teacherId);
+
+    // Lọc lớp học theo học kỳ
+    List<Classroom> findBySemesterAndIsDeletedFalse(String semester);
+
+    // Lọc danh sách lớp học xếp theo ngày tạo giảm dần
+    List<Classroom> findByIsDeletedFalseOrderByCreatedAtDesc();
 }

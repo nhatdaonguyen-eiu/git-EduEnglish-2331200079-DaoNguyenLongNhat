@@ -32,27 +32,27 @@ public class BlogPost {
     private String slug;
 
     // Mở bài ngắn 2-3 câu trả lời thẳng vấn đề
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String summary;
 
     // Thân bài chia các thẻ H2/H3 rõ ràng
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String content;
 
     // FAQs lưu cấu trúc dưới dạng JSON string để linh hoạt render
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String faq;
 
     // Chữ trên nút CTA gợi ý xem thêm lộ trình/học thử
-    @Column(name = "cta_text", columnDefinition = "TEXT")
+    @Column(name = "cta_text", columnDefinition = "LONGTEXT")
     private String ctaText;
 
     // Liên kết của nút CTA
-    @Column(name = "cta_link", columnDefinition = "TEXT")
+    @Column(name = "cta_link", columnDefinition = "LONGTEXT")
     private String ctaLink;
 
     // Banner ảnh đại diện minh họa cho bài viết
-    @Column(name = "thumbnail_url", columnDefinition = "TEXT")
+    @Column(name = "thumbnail_url", columnDefinition = "LONGTEXT")
     private String thumbnailUrl;
 
     @Column(name = "is_deleted", nullable = false)

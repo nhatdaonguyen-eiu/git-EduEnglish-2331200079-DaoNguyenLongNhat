@@ -41,6 +41,9 @@ public class LmsServiceImpl implements LmsService {
     @Autowired
     private SubmissionAnswerRepository submissionAnswerRepository;
 
+    @Autowired
+    private com.englishcenter.backend.service.GamificationService gamificationService;
+
     // ==========================================
     // MATERIALS
     // ==========================================
@@ -264,6 +267,13 @@ public class LmsServiceImpl implements LmsService {
 
         StudentSubmission finalSaved = studentSubmissionRepository.save(submission);
 
+        try {
+            gamificationService.triggerDailyCheckin(request.getStudentId());
+            gamificationService.checkAndAwardBadges(request.getStudentId());
+        } catch (Exception e) {
+            System.err.println("Lỗi cập nhật Gamification: " + e.getMessage());
+        }
+
         return toSubmissionResponse(finalSaved, savedAnswers, request.getStudentId());
     }
 
@@ -280,6 +290,13 @@ public class LmsServiceImpl implements LmsService {
         submission.setIsGraded(true);
 
         StudentSubmission saved = studentSubmissionRepository.save(submission);
+
+        try {
+            gamificationService.checkAndAwardBadges(saved.getStudentId());
+        } catch (Exception e) {
+            System.err.println("Lỗi cập nhật Gamification sau chấm điểm: " + e.getMessage());
+        }
+
         List<SubmissionAnswer> answers = submissionAnswerRepository.findBySubmissionId(saved.getId());
 
         // Since teacher is grading, we pass null as querying userId to show all details

@@ -20,5 +20,7 @@ public class ClassroomDTO {
     private Integer teacherId;
     private String teacherName;
     private String schedule;
+    private String semester;
+    private java.math.BigDecimal tuitionFee;
     private LocalDateTime createdAt;
 }
