@@ -1,13 +1,17 @@
 package com.englishcenter.backend.service.impl;
 
-import com.englishcenter.backend.dto.*;
+import com.englishcenter.backend.dto.AnswerRequest;
+import com.englishcenter.backend.dto.FreeMaterialRequest;
+import com.englishcenter.backend.dto.FreeMaterialResponse;
+import com.englishcenter.backend.dto.GradeFreeMaterialResponse;
+import com.englishcenter.backend.dto.SubmitFreeMaterialRequest;
 import com.englishcenter.backend.entity.FreeMaterial;
 import com.englishcenter.backend.entity.FreeMaterialQuestion;
 import com.englishcenter.backend.repository.FreeMaterialQuestionRepository;
 import com.englishcenter.backend.repository.FreeMaterialRepository;
 import com.englishcenter.backend.service.FreeMaterialService;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,13 +29,11 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class FreeMaterialServiceImpl implements FreeMaterialService {
 
-    @Autowired
-    private FreeMaterialRepository freeMaterialRepository;
-
-    @Autowired
-    private FreeMaterialQuestionRepository freeMaterialQuestionRepository;
+    private final FreeMaterialRepository freeMaterialRepository;
+    private final FreeMaterialQuestionRepository freeMaterialQuestionRepository;
 
     @PostConstruct
     @Override

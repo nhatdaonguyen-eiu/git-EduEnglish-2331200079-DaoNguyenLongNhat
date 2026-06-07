@@ -1,42 +1,47 @@
 package com.englishcenter.backend.service.impl;
 
-import com.englishcenter.backend.dto.*;
-import com.englishcenter.backend.entity.*;
-import com.englishcenter.backend.repository.*;
+import com.englishcenter.backend.dto.GamificationProfileResponse;
+import com.englishcenter.backend.dto.LeaderboardResponse;
+import com.englishcenter.backend.dto.ProgressResponse;
+import com.englishcenter.backend.entity.ClassEnrollment;
+import com.englishcenter.backend.entity.Classroom;
+import com.englishcenter.backend.entity.Course;
+import com.englishcenter.backend.entity.CourseActivity;
+import com.englishcenter.backend.entity.StudentBadge;
+import com.englishcenter.backend.entity.StudentSubmission;
+import com.englishcenter.backend.entity.User;
+import com.englishcenter.backend.repository.ClassEnrollmentRepository;
+import com.englishcenter.backend.repository.ClassroomRepository;
+import com.englishcenter.backend.repository.CourseActivityRepository;
+import com.englishcenter.backend.repository.CourseRepository;
+import com.englishcenter.backend.repository.StudentBadgeRepository;
+import com.englishcenter.backend.repository.StudentSubmissionRepository;
+import com.englishcenter.backend.repository.UserRepository;
 import com.englishcenter.backend.service.GamificationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class GamificationServiceImpl implements GamificationService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private StudentBadgeRepository studentBadgeRepository;
-
-    @Autowired
-    private StudentSubmissionRepository studentSubmissionRepository;
-
-    @Autowired
-    private ClassEnrollmentRepository classEnrollmentRepository;
-
-    @Autowired
-    private CourseActivityRepository courseActivityRepository;
-
-    @Autowired
-    private ClassroomRepository classroomRepository;
-
-    @Autowired
-    private CourseRepository courseRepository;
+    private final UserRepository userRepository;
+    private final StudentBadgeRepository studentBadgeRepository;
+    private final StudentSubmissionRepository studentSubmissionRepository;
+    private final ClassEnrollmentRepository classEnrollmentRepository;
+    private final CourseActivityRepository courseActivityRepository;
+    private final ClassroomRepository classroomRepository;
+    private final CourseRepository courseRepository;
 
     // Định nghĩa metadata cho các huy hiệu trong hệ thống
     private static final Map<String, String[]> BADGE_METADATA = new LinkedHashMap<>();

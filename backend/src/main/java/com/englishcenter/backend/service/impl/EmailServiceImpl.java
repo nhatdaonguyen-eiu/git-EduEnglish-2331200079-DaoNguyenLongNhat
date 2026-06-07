@@ -1,9 +1,16 @@
 package com.englishcenter.backend.service.impl;
 
-import com.englishcenter.backend.entity.*;
-import com.englishcenter.backend.repository.*;
+import com.englishcenter.backend.entity.ClassEnrollment;
+import com.englishcenter.backend.entity.Classroom;
+import com.englishcenter.backend.entity.Course;
+import com.englishcenter.backend.entity.Payment;
+import com.englishcenter.backend.entity.User;
+import com.englishcenter.backend.repository.ClassEnrollmentRepository;
+import com.englishcenter.backend.repository.ClassroomRepository;
+import com.englishcenter.backend.repository.CourseRepository;
+import com.englishcenter.backend.repository.UserRepository;
 import com.englishcenter.backend.service.EmailService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -19,19 +26,13 @@ import java.time.format.DateTimeFormatter;
  * ================================================================
  */
 @Service
+@RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
-    @Autowired
-    private ClassEnrollmentRepository classEnrollmentRepository;
-
-    @Autowired
-    private ClassroomRepository classroomRepository;
-
-    @Autowired
-    private CourseRepository courseRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    private final ClassEnrollmentRepository classEnrollmentRepository;
+    private final ClassroomRepository classroomRepository;
+    private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
 
     @Override
     public String generateInvoiceAndSimulateEmail(Payment payment) {

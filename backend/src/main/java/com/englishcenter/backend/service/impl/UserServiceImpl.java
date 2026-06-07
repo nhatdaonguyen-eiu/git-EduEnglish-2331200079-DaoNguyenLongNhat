@@ -9,7 +9,7 @@ import com.englishcenter.backend.repository.UserRepository;
 import com.englishcenter.backend.service.UserService;
 import com.englishcenter.backend.util.HashUtil;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
  * ================================================================
  */
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @PostConstruct
     @Override

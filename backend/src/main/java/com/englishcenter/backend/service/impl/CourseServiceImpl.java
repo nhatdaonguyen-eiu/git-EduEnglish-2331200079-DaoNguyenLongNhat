@@ -5,7 +5,7 @@ import com.englishcenter.backend.dto.CourseRequest;
 import com.englishcenter.backend.entity.Course;
 import com.englishcenter.backend.repository.CourseRepository;
 import com.englishcenter.backend.service.CourseService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -47,10 +47,10 @@ import java.util.stream.Collectors;
  * ================================================================
  */
 @Service
+@RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
 
-    @Autowired
-    private CourseRepository courseRepository;
+    private final CourseRepository courseRepository;
 
 
     // ════════════════════════════════════════════════

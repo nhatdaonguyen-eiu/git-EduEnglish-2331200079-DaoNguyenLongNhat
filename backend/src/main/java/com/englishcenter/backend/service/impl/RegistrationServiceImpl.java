@@ -6,7 +6,7 @@ import com.englishcenter.backend.entity.Registration;
 import com.englishcenter.backend.repository.CourseRepository;
 import com.englishcenter.backend.repository.RegistrationRepository;
 import com.englishcenter.backend.service.RegistrationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,13 +21,11 @@ import java.util.stream.Collectors;
  * ================================================================
  */
 @Service
+@RequiredArgsConstructor
 public class RegistrationServiceImpl implements RegistrationService {
 
-    @Autowired
-    private RegistrationRepository registrationRepository;
-
-    @Autowired
-    private CourseRepository courseRepository;
+    private final RegistrationRepository registrationRepository;
+    private final CourseRepository courseRepository;
 
     @Override
     public RegistrationDTO createRegistration(RegistrationRequest request) {

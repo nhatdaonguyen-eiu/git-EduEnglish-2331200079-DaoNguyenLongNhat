@@ -1,10 +1,33 @@
 package com.englishcenter.backend.service.impl;
 
-import com.englishcenter.backend.dto.*;
-import com.englishcenter.backend.entity.*;
-import com.englishcenter.backend.repository.*;
+import com.englishcenter.backend.dto.ActivityRequest;
+import com.englishcenter.backend.dto.ActivityResponse;
+import com.englishcenter.backend.dto.AnswerRequest;
+import com.englishcenter.backend.dto.AnswerResponse;
+import com.englishcenter.backend.dto.GradeRequest;
+import com.englishcenter.backend.dto.MaterialRequest;
+import com.englishcenter.backend.dto.MaterialResponse;
+import com.englishcenter.backend.dto.QuestionRequest;
+import com.englishcenter.backend.dto.QuestionResponse;
+import com.englishcenter.backend.dto.SubmissionRequest;
+import com.englishcenter.backend.dto.SubmissionResponse;
+import com.englishcenter.backend.entity.ActivityQuestion;
+import com.englishcenter.backend.entity.Course;
+import com.englishcenter.backend.entity.CourseActivity;
+import com.englishcenter.backend.entity.CourseMaterial;
+import com.englishcenter.backend.entity.StudentSubmission;
+import com.englishcenter.backend.entity.SubmissionAnswer;
+import com.englishcenter.backend.entity.User;
+import com.englishcenter.backend.repository.ActivityQuestionRepository;
+import com.englishcenter.backend.repository.CourseActivityRepository;
+import com.englishcenter.backend.repository.CourseMaterialRepository;
+import com.englishcenter.backend.repository.CourseRepository;
+import com.englishcenter.backend.repository.StudentSubmissionRepository;
+import com.englishcenter.backend.repository.SubmissionAnswerRepository;
+import com.englishcenter.backend.repository.UserRepository;
+import com.englishcenter.backend.service.GamificationService;
 import com.englishcenter.backend.service.LmsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,31 +41,17 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class LmsServiceImpl implements LmsService {
 
-    @Autowired
-    private CourseRepository courseRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private CourseMaterialRepository courseMaterialRepository;
-
-    @Autowired
-    private CourseActivityRepository courseActivityRepository;
-
-    @Autowired
-    private ActivityQuestionRepository activityQuestionRepository;
-
-    @Autowired
-    private StudentSubmissionRepository studentSubmissionRepository;
-
-    @Autowired
-    private SubmissionAnswerRepository submissionAnswerRepository;
-
-    @Autowired
-    private com.englishcenter.backend.service.GamificationService gamificationService;
+    private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
+    private final CourseMaterialRepository courseMaterialRepository;
+    private final CourseActivityRepository courseActivityRepository;
+    private final ActivityQuestionRepository activityQuestionRepository;
+    private final StudentSubmissionRepository studentSubmissionRepository;
+    private final SubmissionAnswerRepository submissionAnswerRepository;
+    private final GamificationService gamificationService;
 
     // ==========================================
     // MATERIALS

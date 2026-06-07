@@ -6,7 +6,7 @@ import com.englishcenter.backend.entity.BlogPost;
 import com.englishcenter.backend.repository.BlogPostRepository;
 import com.englishcenter.backend.service.BlogService;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
  * ================================================================
  */
 @Service
+@RequiredArgsConstructor
 public class BlogServiceImpl implements BlogService {
 
-    @Autowired
-    private BlogPostRepository blogPostRepository;
+    private final BlogPostRepository blogPostRepository;
 
     @PostConstruct
     @Override

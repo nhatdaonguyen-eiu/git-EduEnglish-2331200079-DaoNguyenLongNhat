@@ -10,7 +10,7 @@ import com.englishcenter.backend.repository.ClassroomRepository;
 import com.englishcenter.backend.repository.CourseRepository;
 import com.englishcenter.backend.repository.UserRepository;
 import com.englishcenter.backend.service.ClassroomService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,19 +26,13 @@ import java.util.stream.Collectors;
  * ================================================================
  */
 @Service
+@RequiredArgsConstructor
 public class ClassroomServiceImpl implements ClassroomService {
 
-    @Autowired
-    private ClassroomRepository classroomRepository;
-
-    @Autowired
-    private ClassEnrollmentRepository classEnrollmentRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private CourseRepository courseRepository;
+    private final ClassroomRepository classroomRepository;
+    private final ClassEnrollmentRepository classEnrollmentRepository;
+    private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
 
     @Override
     public ClassroomDTO createClassroom(Classroom classroom) {
