@@ -77,15 +77,15 @@ public class EmailServiceImpl implements EmailService {
                 "    <style>\n" +
                 "        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 40px; }\n" +
                 "        .invoice-card { max-width: 650px; margin: 0 auto; background-color: #ffffff; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); overflow: hidden; }\n" +
-                "        .header-banner { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 30px; display: flex; justify-content: space-between; align-items: center; }\n" +
+                "        .header-banner { background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); color: #ffffff; padding: 30px; display: flex; justify-content: space-between; align-items: center; }\n" +
                 "        .logo-title { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }\n" +
-                "        .logo-orange { color: #f97316; }\n" +
-                "        .invoice-label { font-size: 11px; text-transform: uppercase; font-weight: bold; background-color: rgba(249, 115, 22, 0.15); color: #f97316; padding: 4px 10px; border-radius: 8px; }\n" +
+                "        .logo-emerald { color: #34d399; }\n" +
+                "        .invoice-label { font-size: 11px; text-transform: uppercase; font-weight: bold; background-color: rgba(52, 211, 153, 0.15); color: #34d399; padding: 4px 10px; border-radius: 8px; }\n" +
                 "        .invoice-body { padding: 40px; }\n" +
                 "        .title-row { display: flex; justify-content: space-between; border-b: 1px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 25px; }\n" +
                 "        .title-row h1 { font-size: 24px; font-weight: 900; margin: 0; color: #0f172a; }\n" +
                 "        .meta-info { text-align: right; font-size: 12px; color: #64748b; line-height: 1.6; }\n" +
-                "        .section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; color: #f97316; margin-bottom: 10px; letter-spacing: 0.5px; }\n" +
+                "        .section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; color: #059669; margin-bottom: 10px; letter-spacing: 0.5px; }\n" +
                 "        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }\n" +
                 "        .info-block { background-color: #f8fafc; border: 1px solid #f1f5f9; padding: 15px; border-radius: 16px; font-size: 12px; line-height: 1.6; }\n" +
                 "        .info-block strong { color: #0f172a; }\n" +
@@ -95,7 +95,7 @@ public class EmailServiceImpl implements EmailService {
                 "        .table-bill .fee-cell { text-align: right; font-weight: bold; color: #0f172a; }\n" +
                 "        .summary-block { display: flex; justify-content: flex-end; align-items: center; gap: 15px; padding-top: 10px; }\n" +
                 "        .summary-title { font-size: 13px; font-weight: bold; color: #475569; }\n" +
-                "        .summary-value { font-size: 20px; font-weight: 900; color: #f97316; }\n" +
+                "        .summary-value { font-size: 20px; font-weight: 900; color: #059669; }\n" +
                 "        .paid-stamp { display: inline-block; border: 3px double #10b981; color: #10b981; font-weight: 900; font-size: 14px; text-transform: uppercase; padding: 5px 15px; border-radius: 8px; transform: rotate(-8deg); opacity: 0.85; margin-left: 20px; }\n" +
                 "        .footer { background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px; text-align: center; font-size: 11px; color: #64748b; line-height: 1.5; }\n" +
                 "    </style>\n" +
@@ -103,7 +103,7 @@ public class EmailServiceImpl implements EmailService {
                 "<body>\n" +
                 "    <div class=\"invoice-card\">\n" +
                 "        <div class=\"header-banner\">\n" +
-                "            <div class=\"logo-title\">Edu<span class=\"logo-orange\">English</span></div>\n" +
+                "            <div class=\"logo-title\">Edu<span class=\"logo-emerald\">English</span></div>\n" +
                 "            <div class=\"invoice-label\">Hóa đơn đóng học phí</div>\n" +
                 "        </div>\n" +
                 "        \n" +

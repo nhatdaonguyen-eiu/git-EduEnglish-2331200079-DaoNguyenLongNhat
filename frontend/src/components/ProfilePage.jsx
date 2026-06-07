@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import axios from 'axios';
+import { ArrowLeft } from 'lucide-react';
 
 // Trang quản lý Hồ sơ cá nhân — Premium Profile Management
 function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
@@ -171,10 +172,10 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
     <div className="animate-fade-in pb-10">
       {/* HERO BANNER */}
       <div className="relative overflow-hidden">
-        <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-orange-950 py-16 px-4">
+        <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950 py-16 px-4">
           {/* Decorative elements */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-            <div className="absolute -top-20 -right-20 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute -top-20 -right-20 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl"></div>
             <div className="absolute -bottom-10 -left-10 w-56 h-56 bg-slate-500/10 rounded-full blur-3xl"></div>
           </div>
 
@@ -182,16 +183,16 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
             {/* Nút Quay lại */}
             <button
               onClick={onClose}
-              className="mb-8 flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-white transition-all cursor-pointer bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl border border-white/10"
+              className="mb-8 flex items-center gap-2 text-xs font-black text-emerald-100 hover:text-white bg-emerald-800/40 hover:bg-emerald-800/60 active:scale-95 px-4 py-2.5 rounded-xl border border-emerald-700/50 shadow-md transition-all duration-200 cursor-pointer"
             >
-              ← Quay Lại Dashboard
+              <ArrowLeft className="w-4 h-4 text-emerald-450" /> Quay Lại Dashboard
             </button>
 
             {/* Avatar + Info */}
             <div className="flex flex-col sm:flex-row items-center gap-6">
               {/* Avatar */}
               <div className="relative group">
-                <div className="w-28 h-28 rounded-full ring-4 ring-orange-500/30 shadow-2xl shadow-orange-500/20 overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                <div className="w-28 h-28 rounded-full ring-4 ring-emerald-500/30 shadow-2xl shadow-emerald-500/20 overflow-hidden bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center">
                   {formData.avatarUrl ? (
                     <img
                       src={formData.avatarUrl}
@@ -289,7 +290,7 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
                 value={formData.fullName}
                 onChange={handleChange}
                 placeholder="Nhập họ và tên đầy đủ"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all"
               />
             </div>
 
@@ -304,7 +305,7 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="email@example.com"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all"
               />
             </div>
 
@@ -319,7 +320,7 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="0901 234 567"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all"
               />
             </div>
           </div>
@@ -344,7 +345,7 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
                   value={formData.specialty || ''}
                   onChange={handleChange}
                   placeholder="Ví dụ: Chuyên Gia Luyện Thi IELTS Writing & Speaking"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all font-semibold"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-650 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all font-semibold"
                 />
               </div>
 
@@ -360,7 +361,7 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
                     value={formData.certificates || ''}
                     onChange={handleChange}
                     placeholder="Ví dụ: IELTS 8.5, CELTA, Cambridge TKT"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all font-semibold"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-650 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all font-semibold"
                   />
                 </div>
 
@@ -375,7 +376,7 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
                     value={formData.experience || ''}
                     onChange={handleChange}
                     placeholder="Ví dụ: 5+ năm giảng dạy tại trung tâm"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all font-semibold"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-655 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all font-semibold"
                   />
                 </div>
               </div>
@@ -391,7 +392,7 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
                   onChange={handleChange}
                   placeholder="Nhập tiểu sử ngắn gọn truyền cảm hứng học tập đến học viên..."
                   rows="3"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all resize-none leading-relaxed font-medium"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-655 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all resize-none leading-relaxed font-medium"
                 />
               </div>
             </div>
@@ -425,7 +426,7 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
                   value={passwordData.currentPassword}
                   onChange={handlePasswordChange}
                   placeholder="Nhập mật khẩu hiện tại"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all"
                 />
               </div>
 
@@ -440,7 +441,7 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
                   value={passwordData.newPassword}
                   onChange={handlePasswordChange}
                   placeholder="Nhập mật khẩu mới (để trống nếu không đổi)"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all"
                 />
               </div>
 
@@ -455,7 +456,7 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
                   value={passwordData.confirmPassword}
                   onChange={handlePasswordChange}
                   placeholder="Nhập lại mật khẩu mới"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all"
                 />
                 {passwordData.newPassword && passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword && (
                   <p className="text-xs font-bold text-red-500 mt-1">⚠️ Mật khẩu xác nhận không khớp!</p>
@@ -479,7 +480,7 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
                 value={passwordData.currentPassword}
                 onChange={handlePasswordChange}
                 placeholder="Nhập mật khẩu hiện tại để xác nhận"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-sm text-slate-800 placeholder-slate-400 bg-slate-50/50 transition-all"
               />
             </div>
           </div>
@@ -490,7 +491,7 @@ function ProfilePage({ user, onProfileUpdate, onClose, onAccountDeleted }) {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="w-full sm:flex-1 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-black rounded-xl shadow-lg shadow-orange-500/20 cursor-pointer border-none transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full sm:flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-sm font-black rounded-xl shadow-lg shadow-emerald-500/20 cursor-pointer border-none transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {saving ? (
               <>

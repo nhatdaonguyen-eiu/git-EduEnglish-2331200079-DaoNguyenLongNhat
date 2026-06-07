@@ -35,5 +35,6 @@ public class TuitionStatsResponse {
         private String paymentStatus;
         private String paymentMethod;
         private Integer paymentId;
+        private String proofUrl;
     }
 }

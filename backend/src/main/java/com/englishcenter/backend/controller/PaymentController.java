@@ -47,8 +47,10 @@ public class PaymentController {
 
     // 3.5. Học viên gửi yêu cầu xác thực chuyển khoản (PENDING -> PENDING_APPROVAL)
     @PostMapping("/submit-approval")
-    public ResponseEntity<PaymentResponse> submitApproval(@RequestParam String orderId) {
-        return ResponseEntity.ok(paymentService.submitPaymentForApproval(orderId));
+    public ResponseEntity<PaymentResponse> submitApproval(
+            @RequestParam String orderId,
+            @RequestParam(required = false) String proofUrl) {
+        return ResponseEntity.ok(paymentService.submitPaymentForApproval(orderId, proofUrl));
     }
 
     // 4. Lấy chi tiết hóa đơn thanh toán theo Mã đăng ký lớp (ClassEnrollment ID)

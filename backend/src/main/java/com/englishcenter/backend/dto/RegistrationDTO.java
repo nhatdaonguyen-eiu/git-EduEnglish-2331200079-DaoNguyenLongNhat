@@ -21,5 +21,6 @@ public class RegistrationDTO {
     private String courseTitle; // Tên khóa học đã map từ courseId
     private String notes;
     private String status;
+    private String source;
     private LocalDateTime createdAt;
 }

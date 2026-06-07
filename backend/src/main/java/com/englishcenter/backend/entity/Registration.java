@@ -46,6 +46,10 @@ public class Registration {
     @Column(nullable = false)
     private String status = "PENDING";
 
+    // Nguồn đăng ký: Website, Chatbot
+    @Column(nullable = false)
+    private String source = "Website";
+
     // Xóa mềm
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;

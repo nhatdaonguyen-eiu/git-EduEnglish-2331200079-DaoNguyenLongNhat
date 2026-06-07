@@ -7,6 +7,8 @@ function TuitionPaymentPortal({ currentUser, onBackToDashboard }) {
   const [paymentDetails, setPaymentDetails] = useState(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentConfigs, setPaymentConfigs] = useState([]);
+  const [proofUrl, setProofUrl] = useState('');
+  const [uploadingProof, setUploadingProof] = useState(false);
 
   // Read URL query parameters
   const params = new URLSearchParams(window.location.search);
@@ -46,13 +48,33 @@ function TuitionPaymentPortal({ currentUser, onBackToDashboard }) {
     }
   };
 
+  const handleProofUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      setUploadingProof(true);
+      const formData = new FormData();
+      formData.append("file", file);
+      const uploadRes = await axios.post("http://localhost:8080/api/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      setProofUrl(uploadRes.data.url);
+      alert("🎉 Tải ảnh/tệp minh chứng giao dịch lên thành công!");
+    } catch (err) {
+      console.error("Lỗi khi tải lên minh chứng:", err);
+      alert("❌ Tải lên minh chứng thất bại. Vui lòng thử lại.");
+    } finally {
+      setUploadingProof(false);
+    }
+  };
+
   // Process checkout submission (Student confirms they did the manual bank transfer)
   const handleConfirmMockPayment = async () => {
     if (!paymentDetails) return;
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.post(`http://localhost:8080/api/payments/submit-approval?orderId=${paymentDetails.orderId}`);
+      const response = await axios.post(`http://localhost:8080/api/payments/submit-approval?orderId=${paymentDetails.orderId}&proofUrl=${encodeURIComponent(proofUrl)}`);
       setPaymentDetails(response.data);
       if (response.data.status === 'PENDING_APPROVAL') {
         setPaymentSuccess(true);
@@ -91,7 +113,7 @@ function TuitionPaymentPortal({ currentUser, onBackToDashboard }) {
   if (loading && !paymentDetails) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center gap-3 bg-slate-50">
-        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
         <p className="text-slate-500 font-bold text-sm">Đang kết nối cổng thanh toán...</p>
       </div>
     );
@@ -107,7 +129,7 @@ function TuitionPaymentPortal({ currentUser, onBackToDashboard }) {
         <p className="text-slate-500 text-xs mt-2 font-medium">{error}</p>
         <button
           onClick={onBackToDashboard}
-          className="mt-6 w-full py-3 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition-all cursor-pointer border-none"
+          className="mt-6 w-full py-3 bg-slate-800 hover:bg-slate-900 active:scale-95 text-white font-bold rounded-xl text-xs transition-all duration-200 cursor-pointer border-none"
         >
           Quay lại Cổng Học Tập
         </button>
@@ -160,7 +182,7 @@ function TuitionPaymentPortal({ currentUser, onBackToDashboard }) {
           </div>
           <div className="flex justify-between border-b border-slate-200/60 pb-2">
             <span className="text-xs text-slate-400 font-semibold">Số tiền thanh toán</span>
-            <span className="text-xs text-orange-600 font-black">{formatVND(paymentDetails.amount)}</span>
+            <span className="text-xs text-emerald-600 font-black">{formatVND(paymentDetails.amount)}</span>
           </div>
           <div className="flex justify-between border-b border-slate-200/60 pb-2">
             <span className="text-xs text-slate-400 font-semibold">Hình thức thanh toán</span>
@@ -175,11 +197,11 @@ function TuitionPaymentPortal({ currentUser, onBackToDashboard }) {
         </div>
 
         {isApproved ? (
-          <div className="bg-orange-50/50 border border-orange-200/60 rounded-xl p-4 text-left mb-6">
-            <p className="text-xs font-bold text-orange-600 flex items-center gap-1.5">
+          <div className="bg-emerald-50/50 border border-emerald-200/60 rounded-xl p-4 text-left mb-6">
+            <p className="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
               📧 Email Gửi Hóa Đơn Tự Động:
             </p>
-            <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
+            <p className="text-[11px] text-slate-655 mt-1 leading-relaxed">
               Hóa đơn chi tiết đã được gửi giả lập tới hòm thư <strong>{paymentDetails.studentEmail}</strong>. Bạn cũng có thể xem và tải bản in hóa đơn ngay bên dưới.
             </p>
           </div>
@@ -200,14 +222,14 @@ function TuitionPaymentPortal({ currentUser, onBackToDashboard }) {
               href={`http://localhost:8080${paymentDetails.invoiceUrl}`}
               target="_blank"
               rel="noreferrer"
-              className="flex-1 py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-xs transition-all shadow-md shadow-orange-500/10 cursor-pointer text-center"
+              className="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all shadow-md shadow-emerald-600/10 cursor-pointer text-center"
             >
               📄 Xem & Tải Hóa Đơn
             </a>
           )}
           <button
             onClick={onBackToDashboard}
-            className="flex-1 py-3.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition-all cursor-pointer border-none"
+            className="flex-1 py-3.5 bg-slate-800 hover:bg-slate-900 active:scale-95 text-white font-bold rounded-xl text-xs transition-all duration-200 cursor-pointer border-none"
           >
             Về Trang Cổng Học Tập 🏠
           </button>
@@ -296,6 +318,28 @@ function TuitionPaymentPortal({ currentUser, onBackToDashboard }) {
           </div>
 
           <div className="w-full mt-8 text-left">
+            {/* Upload proof of payment */}
+            <div className="mb-5 p-4 bg-slate-50 border border-slate-200/60 rounded-2xl flex flex-col gap-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">
+                Tải lên minh chứng chuyển khoản (Ảnh / PDF)
+              </label>
+              <input 
+                type="file"
+                accept="image/*,application/pdf"
+                onChange={handleProofUpload}
+                className="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-none file:text-[10px] file:font-black file:bg-[#064e3b] file:text-white hover:file:brightness-110 cursor-pointer w-full"
+              />
+              {uploadingProof && <span className="text-[9px] text-slate-400 font-bold animate-pulse">Đang tải tệp lên...</span>}
+              {proofUrl && (
+                <div className="text-[9px] text-emerald-750 font-bold flex items-center gap-1 mt-1">
+                  <span>✓ Đã tải:</span>
+                  <a href={proofUrl} target="_blank" rel="noreferrer" className="underline truncate max-w-[200px]">
+                    {proofUrl.split('/').pop()}
+                  </a>
+                </div>
+              )}
+            </div>
+
             <button
               onClick={handleConfirmMockPayment}
               disabled={loading}
@@ -344,9 +388,9 @@ function TuitionPaymentPortal({ currentUser, onBackToDashboard }) {
 
                 <div className="flex flex-col gap-1">
                   <span className="text-[9px] text-slate-450 uppercase tracking-widest font-black">Cú Pháp Chuyển Khoản</span>
-                  <span className="text-orange-600 font-black text-sm select-all bg-orange-50 border border-orange-200/50 py-1.5 px-3 rounded-lg flex items-center justify-between">
+                  <span className="text-emerald-700 font-black text-sm select-all bg-emerald-50 border border-emerald-200/50 py-1.5 px-3 rounded-lg flex items-center justify-between">
                     {paymentDetails.transferSyntax}
-                    <span className="text-[9px] text-orange-400 font-bold border border-orange-200 px-1.5 py-0.5 rounded bg-white cursor-pointer select-none" onClick={() => {
+                    <span className="text-[9px] text-emerald-600 font-bold border border-emerald-250 px-1.5 py-0.5 rounded bg-white cursor-pointer select-none" onClick={() => {
                       navigator.clipboard.writeText(paymentDetails.transferSyntax);
                       alert('Đã sao chép cú pháp chuyển khoản!');
                     }}>SAO CHÉP</span>
@@ -355,7 +399,7 @@ function TuitionPaymentPortal({ currentUser, onBackToDashboard }) {
 
                 <div className="flex flex-col gap-1 mt-1 border-t border-slate-200 pt-3">
                   <span className="text-[9px] text-slate-450 uppercase tracking-widest font-black">Tổng Học Phí</span>
-                  <span className="text-lg text-orange-600 font-black">{formatVND(paymentDetails.amount)}</span>
+                  <span className="text-lg text-emerald-700 font-black">{formatVND(paymentDetails.amount)}</span>
                 </div>
               </div>
             )}
@@ -378,7 +422,7 @@ function TuitionPaymentPortal({ currentUser, onBackToDashboard }) {
             </div>
             <button
               onClick={onBackToDashboard}
-              className="w-full py-3 bg-white hover:bg-slate-100 text-slate-500 hover:text-slate-700 border border-slate-200 font-bold rounded-xl text-xs transition-all cursor-pointer"
+              className="w-full py-3 bg-white hover:bg-slate-100 active:scale-95 text-slate-500 hover:text-slate-700 border border-slate-200 font-bold rounded-xl text-xs transition-all duration-200 cursor-pointer"
             >
               Hủy thanh toán & Quay lại
             </button>

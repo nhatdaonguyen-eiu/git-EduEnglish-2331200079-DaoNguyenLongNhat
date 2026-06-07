@@ -22,6 +22,9 @@ public interface RegistrationService {
     // Admin cập nhật trạng thái chăm sóc (PENDING, CONTACTED, etc.)
     RegistrationDTO updateRegistrationStatus(Integer id, String status);
 
+    // Admin cập nhật ghi chú cuộc gọi tư vấn
+    RegistrationDTO updateRegistrationNotes(Integer id, String notes);
+
     // Admin xóa mềm một bản ghi đăng ký học
     void deleteRegistration(Integer id);
 }

@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
-function StudentPortal() {
+function StudentPortal({ onNavigate }) {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // Trạng thái tìm kiếm & bộ lọc của học viên
-  const [search, setSearch] = useState('');
-  const [level, setLevel] = useState('');
-  const [category, setCategory] = useState('');
+  // No search/filter states needed here anymore (moved to standalone Courses page)
 
   // Trạng thái biểu mẫu đăng ký
   const initialRegForm = { fullName: '', phoneNumber: '', email: '', courseId: '', notes: '' };
@@ -60,24 +57,14 @@ function StudentPortal() {
 
   const regFormRef = useRef(null);
 
-  // Debounce tìm kiếm khóa học
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      fetchActiveCourses();
-    }, 250);
-    return () => clearTimeout(delayDebounceFn);
-  }, [search, level, category]);
+    fetchActiveCourses();
+  }, []);
 
   const fetchActiveCourses = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8080/api/courses', {
-        params: {
-          search: search || null,
-          level: level || null,
-          category: category || null
-        }
-      });
+      const response = await axios.get('http://localhost:8080/api/courses');
       setCourses(response.data);
     } catch (error) {
       console.error("Lỗi lấy danh sách khóa học:", error);
@@ -91,11 +78,11 @@ function StudentPortal() {
     setRegForm({ ...regForm, [name]: value });
   };
 
-  // Cuộn mượt mà đến Form đăng ký và auto-fill khóa học tương ứng
+  // Cuộn mượt mà lên Form đăng ký tư vấn nổi ở Hero và auto-fill khóa học tương ứng
   const handleRegisterClick = (courseId) => {
-    setRegForm({ ...regForm, courseId: courseId || '' });
+    setRegForm(prev => ({ ...prev, courseId: courseId || '' }));
     setSelectedCourse(null); // Đóng modal chi tiết nếu đang mở
-    regFormRef.current?.scrollIntoView({ behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleRegSubmit = async (e) => {
@@ -131,38 +118,188 @@ function StudentPortal() {
   return (
     <div className="bg-slate-50 min-h-screen pb-24 text-slate-800">
       
-      {/* 1. HERO SECTION HOÀNH TRÁNG */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-950 to-orange-950 text-white py-20 px-6 sm:px-12 md:py-28">
+      {/* 1. HERO SECTION HOÀNH TRÁNG KÈM MOCKUP TRỰC QUAN */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950 text-white py-16 px-6 sm:px-12 md:py-24">
         {/* Họa tiết nền mờ ảo */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl -translate-y-12 translate-x-12"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl translate-y-12 -translate-x-12"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl -translate-y-12 translate-x-12"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl translate-y-12 -translate-x-12"></div>
 
-        <div className="max-w-5xl mx-auto text-center relative z-10">
-          <span className="px-4 py-1.5 bg-orange-500/15 text-orange-400 border border-orange-500/20 text-xs font-bold rounded-full tracking-wider uppercase">
-            🚀 Kiến Tạo Tương Lai Của Bạn
-          </span>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black mt-6 tracking-tight leading-tight">
-            Chinh Phục Tiếng Anh <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 bg-clip-text text-transparent">
-              Vươn Ra Thế Giới
+        <div className="max-w-6xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          {/* CỘT TRÁI: THÔNG ĐIỆP CHÍNH */}
+          <div className="lg:col-span-7 text-left space-y-6">
+            <span className="inline-flex px-3 py-1 bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 text-xs font-bold rounded-full tracking-wider uppercase">
+              🚀 Kiến Tạo Tương Lai Của Bạn
             </span>
-          </h1>
-          <p className="text-slate-400 text-base md:text-lg max-w-2xl mx-auto mt-6 leading-relaxed font-medium">
-            EduEnglish mang đến các chương trình đào tạo tiếng Anh chuẩn quốc tế (IELTS, TOEIC, Giao tiếp) giúp bạn tự tin mở khóa các cơ hội sự nghiệp toàn cầu.
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
-              onClick={() => handleRegisterClick('')}
-              className="px-8 py-3.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-            >
-              📅 Đăng Ký Học Thử Ngay
-            </button>
-            <a 
-              href="#courses-section"
-              className="px-8 py-3.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 text-slate-200 font-bold rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] text-center"
-            >
-              🔍 Khám Phá Khóa Học
-            </a>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+              Chinh Phục Tiếng Anh <br />
+              <span className="bg-gradient-to-r from-emerald-400 via-emerald-350 to-amber-305 bg-clip-text text-transparent">
+                Vươn Ra Thế Giới
+              </span>
+            </h1>
+            <p className="text-slate-350 text-xs sm:text-sm md:text-base leading-relaxed font-medium max-w-xl">
+              EduEnglish mang đến các chương trình đào tạo tiếng Anh chuẩn học thuật quốc tế (IELTS, TOEIC, Giao tiếp) giúp bạn tự tin mở khóa các cơ hội sự nghiệp toàn cầu.
+            </p>
+            
+            <div className="pt-2 flex flex-wrap gap-4">
+              <button 
+                onClick={() => {
+                  regFormRef.current?.scrollIntoView({ behavior: 'smooth' });
+                  const nameInput = document.querySelector('input[name="fullName"]');
+                  if (nameInput) nameInput.focus();
+                }}
+                className="px-6 py-3 bg-amber-400 hover:bg-amber-500 text-emerald-955 font-black rounded-xl shadow-lg shadow-amber-400/20 transition-all hover:scale-[1.02] active:scale-[0.98] text-center text-xs cursor-pointer border-none"
+              >
+                ⚡ Đăng Ký Tư Vấn Lộ Trình
+              </button>
+              <a 
+                href="#courses-section"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('courses-section')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-lg shadow-emerald-700/20 transition-all hover:scale-[1.02] active:scale-[0.98] text-center text-xs cursor-pointer border border-emerald-500/30"
+              >
+                📚 Khám Phá Khóa Học
+              </a>
+            </div>
+
+            {/* Quick stats badges */}
+            <div className="pt-6 border-t border-emerald-900/50 grid grid-cols-3 gap-4">
+              <div>
+                <p className="text-xl md:text-2xl font-black text-white">10,000+</p>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Học viên tin chọn</p>
+              </div>
+              <div>
+                <p className="text-xl md:text-2xl font-black text-white">98.5%</p>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Đạt mục tiêu đầu ra</p>
+              </div>
+              <div>
+                <p className="text-xl md:text-2xl font-black text-white">150+</p>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Giáo viên bản xứ</p>
+              </div>
+            </div>
+          </div>
+
+          {/* CỘT PHẢI: FORM ĐĂNG KÝ TƯ VẤN HỌC TẬP SANG TRỌNG */}
+          <div ref={regFormRef} className="lg:col-span-5 animate-fade-in">
+            <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 p-6 sm:p-8 rounded-3xl shadow-2xl text-left relative overflow-hidden">
+              <div className="absolute -top-12 -right-12 w-28 h-28 bg-emerald-500/10 rounded-full blur-xl pointer-events-none"></div>
+              
+              <h3 className="text-lg font-black text-white mb-1 flex items-center gap-2">
+                ⚡ Đăng Ký Tư Vấn Học Tập
+              </h3>
+              <p className="text-[10px] text-slate-400 font-semibold mb-6">
+                Nhận ngay lộ trình cá nhân hóa & ưu đãi học phí mới nhất.
+              </p>
+
+              {success ? (
+                <div className="text-center py-8 flex flex-col items-center gap-4 bg-emerald-950/40 rounded-2xl border border-emerald-900/50 p-6 animate-fade-in text-white">
+                  <div className="w-12 h-12 rounded-full bg-emerald-900/60 border border-emerald-500/30 flex items-center justify-center text-2xl text-emerald-450 shadow-inner">
+                    ✓
+                  </div>
+                  <h4 className="text-base font-black">Gửi yêu cầu thành công!</h4>
+                  <p className="text-slate-300 text-xs leading-relaxed max-w-xs mx-auto font-medium">
+                    Cảm ơn bạn đã quan tâm. Đội ngũ tư vấn viên sẽ liên hệ với bạn trong vòng 24 giờ tới.
+                  </p>
+                  <button 
+                    type="button"
+                    onClick={() => setSuccess(false)}
+                    className="mt-2 px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl transition-all cursor-pointer shadow-md border-none"
+                  >
+                    Đăng ký tiếp
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleRegSubmit} className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Họ và tên học viên *</label>
+                    <input 
+                      type="text" 
+                      name="fullName" 
+                      value={regForm.fullName} 
+                      onChange={handleInputChange} 
+                      placeholder="Ví dụ: Nguyễn Văn A" 
+                      required 
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs bg-slate-950/50 text-white placeholder-slate-650 font-semibold"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Số điện thoại *</label>
+                      <input 
+                        type="tel" 
+                        name="phoneNumber" 
+                        value={regForm.phoneNumber} 
+                        onChange={handleInputChange} 
+                        placeholder="Ví dụ: 0987654321" 
+                        required 
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs bg-slate-950/50 text-white placeholder-slate-650 font-semibold"
+                      />
+                    </div>
+                    
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Địa chỉ Email *</label>
+                      <input 
+                        type="email" 
+                        name="email" 
+                        value={regForm.email} 
+                        onChange={handleInputChange} 
+                        placeholder="Ví dụ: name@gmail.com" 
+                        required 
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs bg-slate-950/50 text-white placeholder-slate-650 font-semibold"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Khóa học quan tâm</label>
+                    <select 
+                      name="courseId" 
+                      value={regForm.courseId} 
+                      onChange={handleInputChange}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs bg-slate-950/50 text-slate-300 font-semibold cursor-pointer"
+                    >
+                      <option value="" className="bg-slate-900 text-white">Tư vấn chung (Chưa chọn khóa học)</option>
+                      {courses.map(course => (
+                        <option key={course.id} value={course.id} className="bg-slate-900 text-white">{course.title} - [{course.category}]</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Lời nhắn gửi trung tâm</label>
+                    <textarea 
+                      name="notes" 
+                      value={regForm.notes || ''} 
+                      onChange={handleInputChange} 
+                      placeholder="Ghi chú mục tiêu học tập (ví dụ: cần đạt IELTS 6.5 để ra trường)..." 
+                      rows="2" 
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs bg-slate-950/50 text-white placeholder-slate-655 font-semibold resize-none leading-relaxed"
+                    />
+                  </div>
+
+                  {regError && (
+                    <p className="text-[10px] font-semibold text-red-400">⚠️ {regError}</p>
+                  )}
+
+                  <button 
+                    type="submit" 
+                    disabled={submitting}
+                    className="w-full py-3 px-6 mt-2 text-xs font-black text-white bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-xl shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/25 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 border-none"
+                  >
+                    {submitting ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Đang gửi yêu cầu...
+                      </>
+                    ) : (
+                      "✓ Hoàn Tất Đăng Ký Tư Vấn"
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -171,7 +308,7 @@ function StudentPortal() {
       <section className="max-w-5xl mx-auto px-4 -mt-10 relative z-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-xl">
           <div className="flex items-center gap-4 border-b md:border-b-0 md:border-r border-slate-100 pb-5 md:pb-0 md:pr-6">
-            <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center text-2xl font-bold">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-2xl font-bold">
               👨‍🎓
             </div>
             <div>
@@ -181,7 +318,7 @@ function StudentPortal() {
           </div>
           
           <div className="flex items-center gap-4 border-b md:border-b-0 md:border-r border-slate-100 py-5 md:py-0 md:px-6">
-            <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center text-2xl font-bold">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-2xl font-bold">
               🏆
             </div>
             <div>
@@ -191,7 +328,7 @@ function StudentPortal() {
           </div>
           
           <div className="flex items-center gap-4 pt-5 md:pt-0 md:pl-6">
-            <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center text-2xl font-bold">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-2xl font-bold">
               🌍
             </div>
             <div>
@@ -202,142 +339,106 @@ function StudentPortal() {
         </div>
       </section>
 
-      {/* 3. KHU VỰC KHÓA HỌC DÀNH CHO HỌC VIÊN */}
+      {/* 3. KHU VỰC KHÓA HỌC DÀNH CHO HỌC VIÊN (COURSE CATALOG) */}
       <section id="courses-section" className="max-w-5xl mx-auto px-4 mt-20">
         <div className="text-center mb-10">
-          <span className="text-xs font-bold text-orange-500 bg-orange-50 px-3 py-1 rounded-full uppercase tracking-wider">
-            Danh mục đào tạo
+          <span className="inline-flex px-2.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-250/30 rounded-full text-[9px] font-black uppercase tracking-wider shadow-sm mb-2">
+            Chương Trình Đào Tạo
           </span>
-          <h2 className="text-3xl font-black text-slate-800 mt-3">Các Khóa Học Đang Mở Tuyển Sinh</h2>
-          <p className="text-slate-500 text-sm mt-2 max-w-md mx-auto">
-            Học phí ưu đãi, giáo trình chuẩn hóa. Hãy chọn chương trình phù hợp nhất để đạt mục tiêu của bạn.
+          <h2 className="text-3xl font-black text-slate-800 tracking-tight">Khóa Học Nổi Bật</h2>
+          <p className="text-slate-450 text-xs sm:text-sm font-semibold mt-1.5 max-w-xl mx-auto leading-relaxed">
+            Nâng tầm kỹ năng Anh ngữ với các chương trình học nổi bật chất lượng cao, thiết kế tối ưu cho học viên.
           </p>
         </div>
 
-        {/* BỘ LỌC CỦA HỌC VIÊN */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-end mb-8">
-          <div className="w-full md:flex-1 flex flex-col gap-1.5">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tìm kiếm</span>
-            <input 
-              type="text" 
-              placeholder="Nhập tên khóa học bạn quan tâm..." 
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm bg-slate-50/50"
-            />
-          </div>
-
-          <div className="w-full sm:w-1/2 md:w-48 flex flex-col gap-1.5">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Cấp độ</span>
-            <select 
-              value={level} 
-              onChange={(e) => setLevel(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none text-sm bg-slate-50/50 font-medium cursor-pointer"
-            >
-              <option value="">Tất cả Trình độ</option>
-              <option value="Beginner">Beginner</option>
-              <option value="Intermediate">Intermediate</option>
-              <option value="Advanced">Advanced</option>
-            </select>
-          </div>
-
-          <div className="w-full sm:w-1/2 md:w-48 flex flex-col gap-1.5">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Chứng chỉ</span>
-            <select 
-              value={category} 
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none text-sm bg-slate-50/50 font-medium cursor-pointer"
-            >
-              <option value="">Tất cả Chương trình</option>
-              <option value="IELTS">IELTS</option>
-              <option value="TOEIC">TOEIC</option>
-              <option value="Giao tiếp">Giao tiếp</option>
-            </select>
-          </div>
-        </div>
-
-        {/* LƯỚI KHÓA HỌC */}
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center gap-3">
-            <div className="w-8 h-8 border-3 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-sm text-slate-400 font-medium">Đang tìm các khóa học tốt nhất...</p>
+            <div className="w-8 h-8 border-3 border-emerald-700 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-xs text-slate-400 font-bold">Đang tải danh sách khóa học...</p>
           </div>
         ) : courses.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-3xl border border-slate-100 p-8 max-w-md mx-auto shadow-sm">
             <p className="text-4xl">📚</p>
-            <h3 className="text-base font-bold text-slate-700 mt-3">Chưa tìm thấy khóa học phù hợp</h3>
-            <p className="text-xs text-slate-400 mt-1">Vui lòng thay đổi từ khóa hoặc bộ lọc của bạn.</p>
+            <h3 className="text-sm font-bold text-slate-700 mt-3">Chưa có khóa học nào</h3>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((course) => {
-              const defaultImage = 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=600&auto=format&fit=crop&q=60';
-              const getLvlBadge = (lvl) => {
-                if (lvl === 'Advanced') return 'bg-red-50 text-red-700 border-red-100';
-                if (lvl === 'Intermediate') return 'bg-blue-50 text-blue-700 border-blue-100';
-                return 'bg-green-50 text-green-700 border-green-100';
-              };
+          <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+              {courses.slice(0, 3).map((course, idx) => {
+                const defaultImage = 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=600&auto=format&fit=crop&q=60';
+                const cardTag = idx === 0 ? 'Bán chạy' : idx === 2 ? 'Mới' : null;
 
-              return (
-                <div key={course.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col group h-full">
-                  <div className="relative h-44 w-full overflow-hidden bg-slate-100">
-                    <img 
-                      src={course.thumbnailUrl || defaultImage} 
-                      alt={course.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <span className="absolute top-3 left-3 px-3 py-1 text-xs font-bold text-white bg-orange-500 rounded-full shadow-md">
-                      {course.category}
-                    </span>
-                    <span className={`absolute top-3 right-3 px-3 py-1 text-xs font-bold rounded-full border shadow-md ${getLvlBadge(course.level)}`}>
-                      {course.level}
-                    </span>
-                  </div>
-
-                  <div className="p-5 flex-grow flex flex-col justify-between">
-                    <div>
-                      <h3 className="text-lg font-bold text-slate-800 line-clamp-1 group-hover:text-orange-500 transition-colors" title={course.title}>
-                        {course.title}
-                      </h3>
-                      <p className="text-slate-500 text-sm mt-2 line-clamp-2 h-10 overflow-hidden leading-relaxed">
-                        {course.description || "Chưa có mô tả chi tiết cho khóa học này."}
-                      </p>
+                return (
+                  <div key={course.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 border border-slate-100 flex flex-col group h-full">
+                    <div className="relative h-40 w-full overflow-hidden bg-slate-100 shrink-0">
+                      <img 
+                        src={course.thumbnailUrl || defaultImage} 
+                        alt={course.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {cardTag && (
+                        <span className={`absolute top-3 left-3 px-2 py-0.5 text-[8px] font-black text-white rounded-md shadow-sm uppercase tracking-wider ${
+                          cardTag === 'Bán chạy' ? 'bg-[#10b981]' : 'bg-[#f59e0b]'
+                        }`}>
+                          {cardTag}
+                        </span>
+                      )}
                     </div>
 
-                    <div>
-                      <div className="flex justify-between items-baseline mt-4 pt-3 border-t border-slate-100">
-                        <span className="text-xs text-slate-400 font-medium">Học phí ưu đãi</span>
-                        <span className="text-lg font-black text-orange-500">
-                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}
-                        </span>
-                      </div>
-                      <div className="flex gap-3 mt-4">
-                        <button 
+                    <div className="p-4 flex-grow flex flex-col justify-between text-left">
+                      <div>
+                        <p className="text-[9px] text-slate-400 font-bold flex items-center gap-1 uppercase">
+                          <span className="text-emerald-700">● {course.level}</span>
+                          <span>•</span>
+                          <span>{course.duration || '12 tuần'}</span>
+                          <span>•</span>
+                          <span>{course.lessonsCount || '30 bài giảng'}</span>
+                        </p>
+                        <h3 
                           onClick={() => setSelectedCourse(course)}
-                          className="flex-grow py-2.5 px-3 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-800 rounded-xl transition-all flex items-center justify-center cursor-pointer border border-slate-200/40"
+                          className="text-xs sm:text-sm font-black text-slate-800 line-clamp-2 mt-2 hover:text-emerald-800 transition-colors leading-snug cursor-pointer" 
+                          title={course.title}
                         >
-                          🔍 Lộ trình
-                        </button>
+                          {course.title}
+                        </h3>
+                      </div>
+
+                      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                        <div className="flex flex-col">
+                          <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">HỌC PHÍ</span>
+                          <span className="text-xs sm:text-sm font-black text-slate-700">
+                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}
+                          </span>
+                        </div>
                         <button 
                           onClick={() => handleRegisterClick(course.id)}
-                          className="flex-grow py-2.5 px-3 text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 rounded-xl transition-all shadow-md shadow-orange-500/5 hover:shadow-orange-500/10 cursor-pointer"
+                          className="px-3.5 py-2 bg-[#064e3b] hover:bg-[#047857] text-white text-[10px] font-black rounded-lg transition-all shadow-sm active:scale-95 border-none cursor-pointer"
                         >
-                          📝 Đăng ký
+                          Đăng ký
                         </button>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+
+            <div className="flex justify-center mt-12">
+              <button 
+                onClick={() => onNavigate('courses-portal', '/courses')}
+                className="px-8 py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-xs font-black rounded-xl shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 active:scale-[0.98] transition-all cursor-pointer border-none flex items-center gap-2"
+              >
+                Xem Toàn Bộ Khóa Học ➔
+              </button>
+            </div>
           </div>
         )}
       </section>
 
       {/* 🧭 ĐỘI NGŨ GIẢNG VIÊN SÁNG GIÁ (FACULTY SHOWCASE) */}
-      <section className="max-w-5xl mx-auto px-4 mt-24">
+      <section id="faculty-section" className="max-w-5xl mx-auto px-4 mt-24">
         <div className="text-center mb-12">
-          <span className="text-xs font-bold text-orange-500 bg-orange-50 px-3 py-1 rounded-full uppercase tracking-wider">
+          <span className="text-xs font-bold text-emerald-650 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-wider">
             Chất lượng đào tạo hàng đầu
           </span>
           <h2 className="text-3xl font-black text-slate-800 mt-3">Đội Ngũ Giảng Viên Sáng Giá</h2>
@@ -348,7 +449,7 @@ function StudentPortal() {
 
         {teachersLoading ? (
           <div className="py-12 flex flex-col items-center justify-center gap-3">
-            <div className="w-8 h-8 border-3 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-8 h-8 border-3 border-emerald-650 border-t-transparent rounded-full animate-spin"></div>
             <p className="text-xs text-slate-400 font-semibold">Đang kết nối đội ngũ giảng viên...</p>
           </div>
         ) : teachers.length === 0 ? (
@@ -367,7 +468,7 @@ function StudentPortal() {
                   className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100/80 flex flex-col group p-6 relative"
                 >
                   {/* Decorative background aura */}
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-full blur-xl group-hover:bg-orange-500/10 transition-colors"></div>
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-colors"></div>
 
                   <div className="flex items-center gap-4 border-b border-slate-100 pb-4 mb-4">
                     {/* Avatar */}
@@ -379,15 +480,15 @@ function StudentPortal() {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-black text-xl select-none">
+                        <div className="w-full h-full bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center text-white font-black text-xl select-none">
                           {teacher.fullName.charAt(0)}
                         </div>
                       )}
                     </div>
 
                     <div className="text-left min-w-0">
-                      <h3 className="text-base font-black text-slate-800 truncate group-hover:text-orange-500 transition-colors duration-200">{teacher.fullName}</h3>
-                      <p className="text-[10px] font-black text-orange-500 bg-orange-50 border border-orange-100/60 px-2 py-0.5 rounded inline-block uppercase tracking-wider mt-1 truncate max-w-full">
+                      <h3 className="text-base font-black text-slate-800 truncate group-hover:text-emerald-705 transition-colors duration-200">{teacher.fullName}</h3>
+                      <p className="text-[10px] font-black text-emerald-650 bg-emerald-50 border border-emerald-100/60 px-2 py-0.5 rounded inline-block uppercase tracking-wider mt-1 truncate max-w-full">
                         {teacher.specialty || "Giảng viên Anh ngữ"}
                       </p>
                     </div>
@@ -421,7 +522,7 @@ function StudentPortal() {
       {/* 📰 CẨM NANG HỌC TIẾNG ANH (SEO BLOG GRID) */}
       <section className="max-w-5xl mx-auto px-4 mt-24">
         <div className="text-center mb-12">
-          <span className="text-xs font-bold text-orange-500 bg-orange-50 px-3 py-1 rounded-full uppercase tracking-wider">
+          <span className="text-xs font-bold text-emerald-650 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-wider">
             Cẩm nang & Bí quyết học tốt
           </span>
           <h2 className="text-3xl font-black text-slate-800 mt-3">Kinh Nghiệm Học Tiếng Anh</h2>
@@ -432,7 +533,7 @@ function StudentPortal() {
 
         {blogsLoading ? (
           <div className="py-12 flex flex-col items-center justify-center gap-3">
-            <div className="w-8 h-8 border-3 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-8 h-8 border-3 border-emerald-650 border-t-transparent rounded-full animate-spin"></div>
             <p className="text-xs text-slate-400 font-semibold">Đang cập nhật các bài viết hay nhất...</p>
           </div>
         ) : blogs.length === 0 ? (
@@ -466,7 +567,7 @@ function StudentPortal() {
                   {/* Body */}
                   <div className="p-5 flex-grow flex flex-col justify-between">
                     <div>
-                      <h3 className="text-sm sm:text-base font-black text-slate-800 line-clamp-2 leading-snug group-hover:text-orange-500 transition-colors" title={blog.title}>
+                      <h3 className="text-sm sm:text-base font-black text-slate-800 line-clamp-2 leading-snug group-hover:text-emerald-705 transition-colors" title={blog.title}>
                         {blog.title}
                       </h3>
                       <p className="text-slate-500 text-[11px] font-semibold mt-2 line-clamp-3 leading-relaxed">
@@ -474,7 +575,7 @@ function StudentPortal() {
                       </p>
                     </div>
 
-                    <div className="flex justify-between items-center mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-orange-500">
+                    <div className="flex justify-between items-center mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-emerald-650">
                       <span>Đọc bài viết ➔</span>
                       <span className="text-slate-400 font-medium">
                         {new Date(blog.createdAt).toLocaleDateString('vi-VN')}
@@ -488,129 +589,7 @@ function StudentPortal() {
         )}
       </section>
 
-      {/* 4. BIỂU MẪU ĐĂNG KÝ TƯ VẤN / HỌC THỬ (DƯỚI TRANG) */}
-      <section ref={regFormRef} className="max-w-2xl mx-auto px-4 mt-24">
-        <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-lg border border-slate-100 relative overflow-hidden">
-          {/* Nhãn trang trí góc */}
-          <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-full blur-xl"></div>
-          
-          <div className="text-center mb-8">
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-800">Đăng Ký Tư Vấn & Nhận Học Bổng</h2>
-            <p className="text-slate-400 text-sm mt-1.5 font-medium">
-              Điền thông tin của bạn dưới đây, chuyên viên tư vấn sẽ liên hệ trong 24 giờ tới.
-            </p>
-          </div>
 
-          {success ? (
-            // GIAO DIỆN THÀNH CÔNG RỰC RỠ
-            <div className="text-center py-10 flex flex-col items-center gap-4 bg-orange-50/50 rounded-2xl border border-orange-100/50 p-6 animate-fade-in">
-              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-3xl text-green-600">
-                ✓
-              </div>
-              <h3 className="text-xl font-bold text-slate-800">Đăng Ký Thành Công!</h3>
-              <p className="text-slate-500 text-sm max-w-xs mx-auto leading-relaxed">
-                Cảm ơn bạn đã lựa chọn **EduEnglish**. Đội ngũ học vụ sẽ sớm gọi điện tư vấn lộ trình và gửi tặng ưu đãi học phí cho bạn.
-              </p>
-              <button 
-                onClick={() => setSuccess(false)}
-                className="mt-4 px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-md"
-              >
-                Tiếp Tục Đăng Ký Khác
-              </button>
-            </div>
-          ) : (
-            // BIỂU MẪU CHÍNH
-            <form onSubmit={handleRegSubmit} className="flex flex-col gap-5">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Họ và tên học viên</label>
-                <input 
-                  type="text" 
-                  name="fullName" 
-                  value={regForm.fullName} 
-                  onChange={handleInputChange} 
-                  placeholder="Ví dụ: Nguyễn Văn A" 
-                  required 
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm bg-slate-50/20 font-medium"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Số điện thoại</label>
-                  <input 
-                    type="tel" 
-                    name="phoneNumber" 
-                    value={regForm.phoneNumber} 
-                    onChange={handleInputChange} 
-                    placeholder="Ví dụ: 0987654321" 
-                    required 
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm bg-slate-50/20 font-medium"
-                  />
-                </div>
-                
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Địa chỉ Email</label>
-                  <input 
-                    type="email" 
-                    name="email" 
-                    value={regForm.email} 
-                    onChange={handleInputChange} 
-                    placeholder="Ví dụ: name@gmail.com" 
-                    required 
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm bg-slate-50/20 font-medium"
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Khóa học quan tâm</label>
-                <select 
-                  name="courseId" 
-                  value={regForm.courseId} 
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm bg-slate-50/20 text-slate-700 font-semibold cursor-pointer"
-                >
-                  <option value="">Tư vấn chung (Chưa chọn khóa học cụ thể)</option>
-                  {courses.map(course => (
-                    <option key={course.id} value={course.id}>{course.title} - [{course.category}]</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Lời nhắn gửi trung tâm</label>
-                <textarea 
-                  name="notes" 
-                  value={regForm.notes || ''} 
-                  onChange={handleInputChange} 
-                  placeholder="Ghi chú mục tiêu học tập (ví dụ: cần đạt IELTS 6.5 để ra trường, học giao tiếp phục vụ công việc)..." 
-                  rows="3" 
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm bg-slate-50/20 font-medium resize-none leading-relaxed"
-                />
-              </div>
-
-              {regError && (
-                <p className="text-xs font-semibold text-red-500">⚠️ {regError}</p>
-              )}
-
-              <button 
-                type="submit" 
-                disabled={submitting}
-                className="w-full py-3.5 px-6 mt-2 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 rounded-xl shadow-lg shadow-orange-500/10 hover:shadow-orange-500/25 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                {submitting ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Đang gửi thông tin đăng ký...
-                  </>
-                ) : (
-                  "✓ Hoàn Tất Đăng Ký Tư Vấn"
-                )}
-              </button>
-            </form>
-          )}
-        </div>
-      </section>
 
       {/* 5. MODAL CHI TIẾT KHÓA HỌC SANG TRỌNG (HIGH-END ROADMAP SHOWCASE) */}
       {selectedCourse && (
@@ -634,7 +613,7 @@ function StudentPortal() {
               </button>
               
               <div className="absolute bottom-4 left-5 right-5 text-left">
-                <span className="inline-block px-3 py-1 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow">
+                <span className="inline-block px-3 py-1 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow">
                   {selectedCourse.category} • {selectedCourse.level} Level
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5 drop-shadow-sm">{selectedCourse.title}</h3>
@@ -646,10 +625,10 @@ function StudentPortal() {
               
               {/* Tóm tắt nhanh & Thời lượng học */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100/40 flex items-start gap-3">
+                <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/40 flex items-start gap-3">
                   <span className="text-xl">🕒</span>
                   <div>
-                    <h4 className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">Thời lượng khóa học</h4>
+                    <h4 className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Thời lượng khóa học</h4>
                     <p className="text-sm font-black text-slate-800 mt-0.5">{selectedCourse.duration || "Chưa thiết lập"}</p>
                   </div>
                 </div>
@@ -668,7 +647,7 @@ function StudentPortal() {
                 <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Giới thiệu khóa học
                 </h4>
-                <p className="text-slate-600 text-sm mt-1.5 leading-relaxed font-medium">
+                <p className="text-slate-655 text-sm mt-1.5 leading-relaxed font-medium">
                   {selectedCourse.description || "Khóa học được thiết kế đặc thù nhằm nâng cao toàn diện năng lực tiếng Anh của học viên trong thời gian tối ưu."}
                 </p>
               </div>
@@ -723,7 +702,7 @@ function StudentPortal() {
               <div className="flex justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-150 shrink-0">
                 <div>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Học phí trọn khóa ưu đãi</p>
-                  <p className="text-xl font-black text-orange-500 mt-0.5">
+                  <p className="text-xl font-black text-emerald-650 mt-0.5">
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedCourse.price)}
                   </p>
                 </div>
@@ -747,7 +726,7 @@ function StudentPortal() {
                   setSelectedCourse(null);
                   handleRegisterClick(selectedCourse.id);
                 }}
-                className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all shadow-md shadow-orange-500/10 hover:shadow-orange-500/20 text-xs cursor-pointer"
+                className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-md shadow-emerald-500/10 hover:shadow-emerald-500/20 text-xs cursor-pointer border-none"
               >
                 📝 Đăng ký học ngay
               </button>
@@ -826,7 +805,7 @@ function StudentPortal() {
                         {faqs.map((faq, index) => (
                           <div key={index} className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-2">
                             <h4 className="text-xs font-black text-slate-800 flex items-start gap-1">
-                              <span className="text-orange-500 shrink-0">Q:</span>
+                              <span className="text-emerald-600 shrink-0">Q:</span>
                               <span dangerouslySetInnerHTML={{ __html: faq.q }} />
                             </h4>
                             <div 
@@ -862,7 +841,7 @@ function StudentPortal() {
                         window.open(link, '_blank');
                       }
                     }}
-                    className="w-full sm:w-auto px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-orange-500/10 hover:shadow-orange-500/20 cursor-pointer border-none flex items-center justify-center shrink-0"
+                    className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-500/10 hover:shadow-emerald-500/20 cursor-pointer border-none flex items-center justify-center shrink-0"
                   >
                     🚀 {selectedBlog.ctaText}
                   </button>

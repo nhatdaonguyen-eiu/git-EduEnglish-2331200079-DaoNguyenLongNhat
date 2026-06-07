@@ -27,4 +27,6 @@ public class RegistrationRequest {
     private Integer courseId;
 
     private String notes;
+
+    private String source;
 }

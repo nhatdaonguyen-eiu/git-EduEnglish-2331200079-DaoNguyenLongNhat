@@ -253,6 +253,7 @@ public class PaymentServiceImpl implements PaymentService {
                         pend.setPaymentStatus(p.getStatus());
                         pend.setPaymentMethod(p.getMethod());
                         pend.setPaymentId(p.getId());
+                        pend.setProofUrl(p.getProofUrl());
                     }
                     
                     pendingRecords.add(pend);
@@ -271,13 +272,16 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentResponse submitPaymentForApproval(String orderId) {
+    public PaymentResponse submitPaymentForApproval(String orderId, String proofUrl) {
         Payment payment = paymentRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Không tìm thấy giao dịch: " + orderId
                 ));
         if ("PENDING".equals(payment.getStatus())) {
             payment.setStatus("PENDING_APPROVAL");
+            if (proofUrl != null && !proofUrl.trim().isEmpty()) {
+                payment.setProofUrl(proofUrl);
+            }
             payment = paymentRepository.save(payment);
         }
         return toResponse(payment);
@@ -297,6 +301,7 @@ public class PaymentServiceImpl implements PaymentService {
         res.setNote(payment.getNote());
         res.setPaymentDate(payment.getPaymentDate());
         res.setCreatedAt(payment.getCreatedAt());
+        res.setProofUrl(payment.getProofUrl());
 
         // Lấy các trường thông tin bổ sung từ CSDL
         ClassEnrollment enrollment = classEnrollmentRepository.findById(payment.getEnrollmentId()).orElse(null);

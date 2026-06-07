@@ -20,17 +20,14 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Tạo hoặc lấy đường dẫn tuyệt đối của thư mục uploads trong thư mục gốc
-        String uploadPath = new File("uploads").getAbsolutePath();
-        
         // Tạo thư mục nếu chưa tồn tại
-        File uploadDir = new File(uploadPath);
+        File uploadDir = new File("uploads");
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
         }
 
-        // Ánh xạ /uploads/** trỏ vào file:uploads/
+        // Ánh xạ /uploads/** trỏ vào file:uploads/ tương đối
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadPath + "/");
+                .addResourceLocations("file:uploads/");
     }
 }

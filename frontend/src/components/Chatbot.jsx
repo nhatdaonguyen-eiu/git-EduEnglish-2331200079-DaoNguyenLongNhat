@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
-function Chatbot() {
+function Chatbot({ inlineMode = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
@@ -23,6 +23,16 @@ function Chatbot() {
   useEffect(() => {
     fetchCoursesAndClassrooms();
     initializeWelcomeMessage();
+  }, []);
+
+  useEffect(() => {
+    const handleToggle = () => {
+      setIsOpen(prev => !prev);
+    };
+    window.addEventListener('toggleChatbot', handleToggle);
+    return () => {
+      window.removeEventListener('toggleChatbot', handleToggle);
+    };
   }, []);
 
   useEffect(() => {
@@ -262,7 +272,8 @@ function Chatbot() {
         fullName: leadFlow.fullName,
         phoneNumber: leadFlow.phoneNumber,
         email: leadFlow.email,
-        notes: `[Chatbot Lead - ${isOutOfHours() ? 'Ngoài Giờ Làm Việc' : 'Trong Giờ Làm Việc'}] ${finalNotes}`
+        notes: `[Chatbot Lead - ${isOutOfHours() ? 'Ngoài Giờ Làm Việc' : 'Trong Giờ Làm Việc'}] ${finalNotes}`,
+        source: 'Chatbot'
       };
 
       setMessages(prev => [...prev, {
@@ -324,12 +335,118 @@ function Chatbot() {
     }, 500);
   };
 
+  if (inlineMode) {
+    return (
+      <div className="w-full max-w-4xl mx-auto h-[600px] bg-white rounded-3xl shadow-xl border border-slate-100 flex flex-col justify-between overflow-hidden my-4 animate-fade-in text-left">
+        {/* Header */}
+        <div className="bg-slate-950 text-white p-5 flex items-center justify-between border-b border-emerald-900 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center text-xl font-bold shadow-md shadow-emerald-500/20">
+              🤖
+            </div>
+            <div className="text-left">
+              <h4 className="text-sm font-black tracking-wide text-white">Trợ lý ảo EduBot</h4>
+              {isOutOfHours() ? (
+                <p className="text-[10px] text-amber-500 font-bold flex items-center gap-1 mt-0.5">
+                  <span className="animate-pulse">●</span> Ngoài giờ hành chính (Trợ lý tự động)
+                </p>
+              ) : (
+                <p className="text-[10px] text-emerald-400 font-bold flex items-center gap-1 mt-0.5">
+                  <span className="animate-pulse">●</span> Đang hoạt động (Tư vấn viên trực tuyến)
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Messages List Area */}
+        <div className="flex-grow p-5 overflow-y-auto bg-slate-50/50 flex flex-col gap-4">
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex flex-col max-w-[80%] ${
+                msg.sender === 'user' ? 'self-end items-end' : 'self-start items-start'
+              }`}
+            >
+              <div
+                className={`p-3.5 rounded-2xl text-xs sm:text-sm font-semibold whitespace-pre-line text-left leading-relaxed ${
+                  msg.sender === 'user'
+                    ? 'bg-emerald-600 text-white rounded-tr-none shadow-md shadow-emerald-600/10'
+                    : 'bg-white text-slate-700 border border-slate-200/80 rounded-tl-none shadow-sm'
+                }`}
+              >
+                {msg.text}
+              </div>
+              <span className="text-[9px] text-slate-400 mt-1 font-bold">{msg.time}</span>
+
+              {/* Quick replies buttons */}
+              {msg.sender === 'bot' && msg.quickReplies && !leadFlow.active && (
+                <div className="flex flex-wrap gap-2 mt-3 text-left w-full">
+                  <button
+                    onClick={() => handleQuickReply('📚 Tìm hiểu khóa học')}
+                    className="px-3.5 py-2 bg-white hover:bg-emerald-50/30 border border-slate-200 hover:border-emerald-600 text-slate-650 hover:text-emerald-700 text-xs font-black rounded-xl cursor-pointer transition-all shadow-sm"
+                  >
+                    📚 Tìm hiểu khóa học
+                  </button>
+                  <button
+                    onClick={() => handleQuickReply('💰 Xem học phí & ưu đãi')}
+                    className="px-3.5 py-2 bg-white hover:bg-emerald-50/30 border border-slate-200 hover:border-emerald-600 text-slate-650 hover:text-emerald-700 text-xs font-black rounded-xl cursor-pointer transition-all shadow-sm"
+                  >
+                    💰 Xem học phí & ưu đãi
+                  </button>
+                  <button
+                    onClick={() => handleQuickReply('📅 Xem lịch khai giảng')}
+                    className="px-3.5 py-2 bg-white hover:bg-emerald-50/30 border border-slate-200 hover:border-emerald-600 text-slate-650 hover:text-emerald-700 text-xs font-black rounded-xl cursor-pointer transition-all shadow-sm"
+                  >
+                    📅 Xem lịch khai giảng
+                  </button>
+                  <button
+                    onClick={() => handleQuickReply('📞 Đăng ký gọi tư vấn miễn phí')}
+                    className="px-3.5 py-2 bg-white hover:bg-emerald-50/30 border border-slate-200 hover:border-emerald-600 text-slate-655 hover:text-emerald-700 text-xs font-black rounded-xl cursor-pointer transition-all shadow-sm"
+                  >
+                    📞 Đăng ký gọi tư vấn miễn phí
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Chat text input form */}
+        <form
+          onSubmit={handleSendMessage}
+          className="p-4 bg-white border-t border-slate-100 flex gap-2.5 items-center shrink-0"
+        >
+          <input
+            type="text"
+            placeholder={
+              leadFlow.active
+                ? `Nhập câu trả lời bước ${leadFlow.step}/4...`
+                : 'Nhập câu hỏi của bạn tại đây...'
+            }
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            className="flex-grow px-4 py-3 border border-slate-200 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-700 outline-none font-bold bg-white text-slate-800"
+          />
+          <button
+            type="submit"
+            disabled={!inputValue.trim()}
+            className="w-10 h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/10 active:scale-95 disabled:opacity-50 transition-all border-none cursor-pointer text-sm font-black"
+          >
+            ➔
+          </button>
+        </form>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* FLOATING ACTION BUTTON */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full flex items-center justify-center shadow-xl hover:shadow-orange-500/30 active:scale-95 transition-all z-50 cursor-pointer border-none"
+        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-full flex items-center justify-center shadow-xl hover:shadow-emerald-500/30 active:scale-95 transition-all z-50 cursor-pointer border-none"
       >
         {isOpen ? (
           <span className="text-xl">❌</span>
@@ -343,18 +460,24 @@ function Chatbot() {
 
       {/* CHAT WINDOW DIALOG */}
       {isOpen && (
-        <div className="w-[340px] sm:w-[380px] h-[480px] bg-white rounded-3xl shadow-2xl border border-slate-100 flex flex-col justify-between overflow-hidden fixed bottom-24 right-6 z-50 animate-slide-up">
+        <div className="w-[340px] sm:w-[380px] h-[480px] bg-white rounded-3xl shadow-2xl border border-slate-100 flex flex-col justify-between overflow-hidden fixed bottom-24 right-6 z-50 animate-slide-up text-left">
           {/* Header */}
-          <div className="bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
+          <div className="bg-slate-950 text-white p-4 flex items-center justify-between border-b border-emerald-900">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-orange-500 flex items-center justify-center text-lg font-bold shadow-md shadow-orange-500/20">
+              <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-lg font-bold shadow-md shadow-emerald-500/20">
                 🤖
               </div>
               <div className="text-left">
-                <h4 className="text-xs font-black tracking-wide">EduBot - Tư Vấn Tự Động</h4>
-                <p className="text-[9px] text-green-400 font-bold flex items-center gap-1 mt-0.5 animate-pulse">
-                  <span>●</span> Trực tuyến 24/7
-                </p>
+                <h4 className="text-xs font-black tracking-wide text-white">EduBot - Tư Vấn Tự Động</h4>
+                {isOutOfHours() ? (
+                  <p className="text-[9px] text-amber-500 font-bold flex items-center gap-1 mt-0.5">
+                    <span className="animate-pulse">●</span> Ngoài giờ hành chính
+                  </p>
+                ) : (
+                  <p className="text-[9px] text-emerald-400 font-bold flex items-center gap-1 mt-0.5">
+                    <span className="animate-pulse">●</span> Đang hoạt động
+                  </p>
+                )}
               </div>
             </div>
             <button
@@ -377,7 +500,7 @@ function Chatbot() {
                 <div
                   className={`p-3 rounded-2xl text-xs font-semibold whitespace-pre-line text-left leading-relaxed ${
                     msg.sender === 'user'
-                      ? 'bg-orange-500 text-white rounded-tr-none'
+                      ? 'bg-emerald-600 text-white rounded-tr-none'
                       : 'bg-white text-slate-700 border border-slate-200/80 rounded-tl-none shadow-sm'
                   }`}
                 >
@@ -390,25 +513,25 @@ function Chatbot() {
                   <div className="flex flex-wrap gap-1.5 mt-3 text-left w-full">
                     <button
                       onClick={() => handleQuickReply('📚 Tìm hiểu khóa học')}
-                      className="px-2.5 py-1.5 bg-white hover:bg-orange-50/20 border border-slate-200 hover:border-orange-500 text-slate-600 hover:text-orange-600 text-[10px] font-black rounded-lg cursor-pointer transition-all"
+                      className="px-2.5 py-1.5 bg-white hover:bg-emerald-50/20 border border-slate-200 hover:border-emerald-600 text-slate-600 hover:text-emerald-700 text-[10px] font-black rounded-lg cursor-pointer transition-all"
                     >
                       📚 Tìm hiểu khóa học
                     </button>
                     <button
                       onClick={() => handleQuickReply('💰 Xem học phí & ưu đãi')}
-                      className="px-2.5 py-1.5 bg-white hover:bg-orange-50/20 border border-slate-200 hover:border-orange-500 text-slate-600 hover:text-orange-600 text-[10px] font-black rounded-lg cursor-pointer transition-all"
+                      className="px-2.5 py-1.5 bg-white hover:bg-emerald-50/20 border border-slate-200 hover:border-emerald-600 text-slate-600 hover:text-emerald-700 text-[10px] font-black rounded-lg cursor-pointer transition-all"
                     >
                       💰 Xem học phí & ưu đãi
                     </button>
                     <button
                       onClick={() => handleQuickReply('📅 Xem lịch khai giảng')}
-                      className="px-2.5 py-1.5 bg-white hover:bg-orange-50/20 border border-slate-200 hover:border-orange-500 text-slate-600 hover:text-orange-600 text-[10px] font-black rounded-lg cursor-pointer transition-all"
+                      className="px-2.5 py-1.5 bg-white hover:bg-emerald-50/20 border border-slate-200 hover:border-emerald-600 text-slate-600 hover:text-emerald-700 text-[10px] font-black rounded-lg cursor-pointer transition-all"
                     >
                       📅 Xem lịch khai giảng
                     </button>
                     <button
                       onClick={() => handleQuickReply('📞 Đăng ký gọi tư vấn miễn phí')}
-                      className="px-2.5 py-1.5 bg-white hover:bg-orange-50/20 border border-slate-200 hover:border-orange-500 text-slate-600 hover:text-orange-600 text-[10px] font-black rounded-lg cursor-pointer transition-all"
+                      className="px-2.5 py-1.5 bg-white hover:bg-emerald-50/20 border border-slate-200 hover:border-emerald-600 text-slate-600 hover:text-emerald-700 text-[10px] font-black rounded-lg cursor-pointer transition-all"
                     >
                       📞 Đăng ký tư vấn viên gọi lại
                     </button>
@@ -433,12 +556,12 @@ function Chatbot() {
               }
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none font-bold bg-white text-slate-800"
+              className="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none font-bold bg-white text-slate-800"
             />
             <button
               type="submit"
               disabled={!inputValue.trim()}
-              className="w-8.5 h-8.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl flex items-center justify-center shadow-md shadow-orange-500/10 active:scale-95 disabled:opacity-50 transition-all border-none cursor-pointer text-xs"
+              className="w-8.5 h-8.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center justify-center shadow-md shadow-emerald-500/10 active:scale-95 disabled:opacity-50 transition-all border-none cursor-pointer text-xs"
             >
               ➔
             </button>

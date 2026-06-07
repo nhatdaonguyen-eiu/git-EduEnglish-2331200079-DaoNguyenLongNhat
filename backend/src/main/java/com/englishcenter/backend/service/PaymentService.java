@@ -39,5 +39,5 @@ public interface PaymentService {
     TuitionStatsResponse getTuitionStatistics(Integer classId, String semester);
 
     // Học sinh nộp yêu cầu duyệt chuyển khoản (Trạng thái PENDING -> PENDING_APPROVAL)
-    PaymentResponse submitPaymentForApproval(String orderId);
+    PaymentResponse submitPaymentForApproval(String orderId, String proofUrl);
 }

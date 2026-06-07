@@ -44,6 +44,10 @@ public class Payment {
     @Column(name = "order_id")
     private String orderId;
 
+    // Đường dẫn ảnh/file chứng từ chuyển khoản (Proof of payment)
+    @Column(name = "proof_url")
+    private String proofUrl;
+
     // Ghi chú chi tiết giao dịch
     @Column(columnDefinition = "TEXT")
     private String note;

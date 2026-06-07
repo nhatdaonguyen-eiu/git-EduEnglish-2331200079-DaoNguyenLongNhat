@@ -35,4 +35,7 @@ public class PaymentResponse {
 
     // Cú pháp chuyển khoản ngân hàng hợp lệ
     private String transferSyntax;
+
+    // Đường dẫn chứng từ chuyển khoản (Proof of payment)
+    private String proofUrl;
 }

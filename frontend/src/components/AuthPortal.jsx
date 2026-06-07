@@ -83,7 +83,7 @@ function AuthPortal({ onLoginSuccess, onClose }) {
         {/* Nội dung form */}
         <div className="p-6 sm:p-8">
           <div className="text-center mb-6">
-            <div className="inline-flex w-12 h-12 bg-orange-50 rounded-2xl items-center justify-center text-2xl text-orange-500 mb-3 shadow-inner">
+            <div className="inline-flex w-12 h-12 bg-emerald-50 rounded-2xl items-center justify-center text-2xl text-emerald-600 mb-3 shadow-inner">
               🔑
             </div>
             <h2 className="text-2xl font-black text-slate-800">
@@ -118,7 +118,7 @@ function AuthPortal({ onLoginSuccess, onClose }) {
                   onChange={handleLoginChange}
                   placeholder="Nhập tên đăng nhập" 
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm font-semibold bg-slate-50/30"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-sm font-semibold bg-slate-50/30"
                 />
               </div>
 
@@ -131,14 +131,14 @@ function AuthPortal({ onLoginSuccess, onClose }) {
                   onChange={handleLoginChange}
                   placeholder="Nhập mật khẩu" 
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm font-semibold bg-slate-50/30"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-sm font-semibold bg-slate-50/30"
                 />
               </div>
 
               <button 
                 type="submit" 
                 disabled={loading}
-                className="w-full py-3 mt-2 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 rounded-xl shadow-lg shadow-orange-500/10 cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-3 mt-2 text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-xl shadow-lg shadow-emerald-500/10 cursor-pointer flex items-center justify-center gap-2 border-none"
               >
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -159,7 +159,7 @@ function AuthPortal({ onLoginSuccess, onClose }) {
                   onChange={handleRegisterChange}
                   placeholder="Tạo tên đăng nhập độc nhất" 
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm font-semibold bg-slate-50/30"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-sm font-semibold bg-slate-50/30"
                 />
               </div>
 
@@ -172,7 +172,7 @@ function AuthPortal({ onLoginSuccess, onClose }) {
                   onChange={handleRegisterChange}
                   placeholder="Ví dụ: Trần Minh B" 
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm font-semibold bg-slate-50/30"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-sm font-semibold bg-slate-50/30"
                 />
               </div>
 
@@ -185,7 +185,7 @@ function AuthPortal({ onLoginSuccess, onClose }) {
                   onChange={handleRegisterChange}
                   placeholder="name@example.com" 
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm font-semibold bg-slate-50/30"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-sm font-semibold bg-slate-50/30"
                 />
               </div>
 
@@ -198,14 +198,14 @@ function AuthPortal({ onLoginSuccess, onClose }) {
                   onChange={handleRegisterChange}
                   placeholder="Tạo mật khẩu" 
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm font-semibold bg-slate-50/30"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-sm font-semibold bg-slate-50/30"
                 />
               </div>
 
               <button 
                 type="submit" 
                 disabled={loading}
-                className="w-full py-3 mt-2 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 rounded-xl shadow-lg shadow-orange-500/10 cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-3 mt-2 text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-xl shadow-lg shadow-emerald-500/10 cursor-pointer flex items-center justify-center gap-2 border-none"
               >
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -223,7 +223,7 @@ function AuthPortal({ onLoginSuccess, onClose }) {
                 Bạn chưa có tài khoản?{" "}
                 <button 
                   onClick={() => setIsLogin(false)}
-                  className="text-orange-500 font-bold hover:underline bg-none border-none cursor-pointer p-0"
+                  className="text-emerald-605 font-bold hover:underline bg-none border-none cursor-pointer p-0"
                 >
                   Đăng ký ngay học viên
                 </button>
@@ -233,7 +233,7 @@ function AuthPortal({ onLoginSuccess, onClose }) {
                 Đã có tài khoản?{" "}
                 <button 
                   onClick={() => setIsLogin(true)}
-                  className="text-orange-500 font-bold hover:underline bg-none border-none cursor-pointer p-0"
+                  className="text-emerald-605 font-bold hover:underline bg-none border-none cursor-pointer p-0"
                 >
                   Đăng nhập tại đây
                 </button>

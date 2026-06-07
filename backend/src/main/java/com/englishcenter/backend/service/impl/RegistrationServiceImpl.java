@@ -52,6 +52,11 @@ public class RegistrationServiceImpl implements RegistrationService {
         registration.setNotes(request.getNotes());
         registration.setStatus("PENDING"); // Mặc định: Chờ liên hệ
         registration.setIsDeleted(false);
+        if (request.getSource() != null) {
+            registration.setSource(request.getSource());
+        } else {
+            registration.setSource("Website");
+        }
 
         // 2. Lưu vào DB
         Registration saved = registrationRepository.save(registration);
@@ -96,6 +101,22 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     @Override
+    public RegistrationDTO updateRegistrationNotes(Integer id, String notes) {
+        // 1. Tìm bản ghi đăng ký hiện có
+        Registration registration = registrationRepository.findById(id)
+                .filter(r -> !r.getIsDeleted())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Không tìm thấy thông tin đăng ký với ID: " + id
+                ));
+
+        // 2. Cập nhật ghi chú và lưu lại
+        registration.setNotes(notes);
+        Registration updated = registrationRepository.save(registration);
+        return toDTO(updated);
+    }
+
+    @Override
     public void deleteRegistration(Integer id) {
         // 1. Tìm bản ghi cần xóa
         Registration registration = registrationRepository.findById(id)
@@ -122,6 +143,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         dto.setCourseId(registration.getCourseId());
         dto.setNotes(registration.getNotes());
         dto.setStatus(registration.getStatus());
+        dto.setSource(registration.getSource());
         dto.setCreatedAt(registration.getCreatedAt());
 
         // Ánh xạ tên khóa học từ Course CSDL nếu có courseId

@@ -59,6 +59,18 @@ public class RegistrationController {
     }
 
     // ─────────────────────────────────────────────────────────────
+    // PUT /api/registrations/{id}/notes
+    // Admin API: Cập nhật ghi chú chăm sóc học viên
+    // ─────────────────────────────────────────────────────────────
+    @PutMapping("/{id}/notes")
+    public ResponseEntity<RegistrationDTO> updateNotes(
+            @PathVariable Integer id,
+            @RequestParam String notes) {
+        RegistrationDTO updated = registrationService.updateRegistrationNotes(id, notes);
+        return ResponseEntity.ok(updated); // 200 OK
+    }
+
+    // ─────────────────────────────────────────────────────────────
     // DELETE /api/registrations/{id}
     // Admin API: Xóa mềm một bản ghi đăng ký khỏi danh sách hiển thị
     // ─────────────────────────────────────────────────────────────
